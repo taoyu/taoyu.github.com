@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>说说php的异步请求 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2010/12/05/php-async.html&via=lzyy&text=说说php的异步请求"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>说说php的异步请求</h2>
+				<div class="cnt">
+					<p class="date">2010-12-05</p>
+<p>很多情况下我们需要让php在后台执行某个程序，同时又不影响页面的输出，以下是我总结的几种实现方式</p>
+<h3>exec</h3>
+<p>这是最简单的方式</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="nb">exec</span><span class="p">(</span><span class="nb">sprintf</span><span class="p">(</span><span class="s2">&quot;%s &gt; %s 2&gt;&amp;1 &amp; echo $! &gt; %s&quot;</span><span class="p">,</span> <span class="nv">$cmd</span><span class="p">,</span> <span class="nv">$outputfile</span><span class="p">,</span> <span class="nv">$pidfile</span><span class="p">));</span>
+</code></pre>
+</div>
+<p>调用$cmd命令，将输出重定向到$outputfile，不显示错误信息，同时将进程id输出到$pidfile。</p>
+<p>这样也方便监控，比如判断该进程是否还在运行</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">function</span> <span class="nf">isRunning</span><span class="p">(</span><span class="nv">$pid</span><span class="p">){</span>
+    <span class="k">try</span><span class="p">{</span>
+        <span class="nv">$result</span> <span class="o">=</span> <span class="nb">shell_exec</span><span class="p">(</span><span class="nb">sprintf</span><span class="p">(</span><span class="s2">&quot;ps %d&quot;</span><span class="p">,</span> <span class="nv">$pid</span><span class="p">));</span>
+        <span class="k">if</span><span class="p">(</span> <span class="nb">count</span><span class="p">(</span><span class="nb">preg_split</span><span class="p">(</span><span class="s2">&quot;/</span><span class="se">\n</span><span class="s2">/&quot;</span><span class="p">,</span> <span class="nv">$result</span><span class="p">))</span> <span class="o">&gt;</span> <span class="m">2</span><span class="p">){</span>
+            <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="k">catch</span><span class="p">(</span><span class="nx">Exception</span> <span class="nv">$e</span><span class="p">){}</span>
+
+    <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>注意：如果直接调用exec来运行某个命令，或者在该命令后面加个&quot;&amp;&quot;，php还是会等待该命令运行完成再执行下面的操作。</p>
+<h3>proc_open/proc_close</h3>
+<p>这个方法很有意思，先用proc_open运行一段后台程序，然后用proc_close来关闭proc_open，结果程序就在后台运行了，同时php也会继续执行下去</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="nb">proc_close</span><span class="p">(</span><span class="nb">proc_open</span> <span class="p">(</span><span class="s2">&quot;ping www.baidu.com -c 10 &gt; /path/to/output &amp;&quot;</span><span class="p">,</span> <span class="k">array</span><span class="p">(),</span> <span class="nv">$foo</span><span class="p">));</span>
+</code></pre>
+</div>
+<h3>pcntl_fork</h3>
+<p>使用php的多线程来达到目的，原理就是复制一个子线程，同时杀死父线程(不支持windows)。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span> <span class="o">=</span> <span class="nb">pcntl_fork</span><span class="p">())</span>
+    <span class="k">die</span><span class="p">();</span>     <span class="c">// Parent</span>
+
+<span class="k">function</span> <span class="nf">shutdown</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nb">posix_kill</span><span class="p">(</span><span class="nb">posix_getpid</span><span class="p">(),</span> <span class="nx">SIGHUP</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="p">(</span><span class="nb">ob_get_level</span><span class="p">())</span> <span class="nb">ob_end_clean</span><span class="p">();</span> <span class="c">// Discard the output buffer and close</span>
+
+<span class="nb">fclose</span><span class="p">(</span><span class="nx">STDIN</span><span class="p">);</span>  <span class="c">// Close all of the standard</span>
+<span class="nb">fclose</span><span class="p">(</span><span class="nx">STDOUT</span><span class="p">);</span> <span class="c">// file descriptors as we</span>
+<span class="nb">fclose</span><span class="p">(</span><span class="nx">STDERR</span><span class="p">);</span> <span class="c">// are running as a daemon.</span>
+
+<span class="nb">register_shutdown_function</span><span class="p">(</span><span class="s1">&#39;shutdown&#39;</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="nb">posix_setsid</span><span class="p">()</span> <span class="o">&lt;</span> <span class="m">0</span><span class="p">)</span>
+    <span class="k">die</span><span class="p">();</span>      <span class="c">// &lt;- This is an error</span>
+
+<span class="c">// Do your stuff here</span>
+<span class="nb">exec</span><span class="p">(</span><span class="s1">&#39;/bash/command &gt; /path/to/output&#39;</span><span class="p">);</span>
+</code></pre>
+</div>
+<h3>header</h3>
+<p>使用这个方法的前提是使用http协议，同时目标文件可控，最好在一个域下。因为必须要建立http连接才行，所以稍微有点费时。原理是通过header输出&#8217;Connection:close&#8217;头，中断http连接，同时后面的代码继续执行。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">while</span><span class="p">(</span><span class="nb">ob_get_level</span><span class="p">())</span> <span class="nb">ob_end_clean</span><span class="p">();</span>
+<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;Connection: close&#39;</span><span class="p">);</span>
+<span class="nb">ignore_user_abort</span><span class="p">();</span>
+<span class="nb">ob_start</span><span class="p">();</span>
+<span class="k">echo</span><span class="p">(</span><span class="s1">&#39;Connection Closed&#39;</span><span class="p">);</span>
+<span class="nv">$size</span> <span class="o">=</span> <span class="nb">ob_get_length</span><span class="p">();</span>
+<span class="nb">header</span><span class="p">(</span><span class="s2">&quot;Content-Length: </span><span class="si">$size</span><span class="s2">&quot;</span><span class="p">);</span>
+<span class="nb">ob_end_flush</span><span class="p">();</span>
+<span class="nb">flush</span><span class="p">();</span>
+</code></pre>
+</div>
+<h3>使用数据库作中转</h3>
+<p>把要执行的命令和参数先存到缓存或数据库，接下来的事就不用php操心了。</p>
+<p>如果还有其他的方法，欢迎交流 :)</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

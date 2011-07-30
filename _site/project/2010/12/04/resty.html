@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>写了一款REST框架——RESTY - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/project/2010/12/04/resty.html&via=lzyy&text=写了一款REST框架——RESTY"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>写了一款REST框架——RESTY</h2>
+				<div class="cnt">
+					<p class="date">2010-12-02</p>
+<p>关于REST的介绍可以参考<a href="http://blog.leezhong.com/tech/2010/11/14/rest.html">我之前的文章</a>，总体说来，REST是web发展的趋势，而PHP是web开发的利器，但我找了一遍，只找到了两个PHP REST框架(不包括那些以MVC为核心，同时又支持REST的框架)，一个是<a href="http://peej.github.com/tonic/">Tonic</a>，架构理念我比较认同，但代码质量实在不敢恭维。还有一个是<a href="http://www.recessframework.org/">Recess</a>，在我看来，它有点复杂化了，把不该rest做的事也做了。在这种情况下，我只能自己动手，丰衣足食了。</p>
+<h3>RESTY简介</h3>
+<p>RESTY的流程很简单，获取Request单例，然后执行exec方法，该方法里会调用Route来解析URI获取相应的Resource，然后实例化Resource，触发相应的HTTP方法，最后返回一个Response对象，Response执行output方法就输出了结果。听起来好像一点都不简单，哈哈，还是来大概看一下代码吧</p>
+<p>index.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">try</span> <span class="p">{</span>
+	<span class="nx">Request</span><span class="o">::</span><span class="na">instance</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">exec</span><span class="p">()</span><span class="o">-&gt;</span><span class="na">output</span><span class="p">();</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">Route_Exception</span> <span class="nv">$e</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">Response</span><span class="o">::</span><span class="na">instance</span><span class="p">()</span>
+		<span class="o">-&gt;</span><span class="na">set_status</span><span class="p">(</span><span class="m">404</span><span class="p">)</span>
+		<span class="o">-&gt;</span><span class="na">set_body</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
+			<span class="s1">&#39;error&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;Resource Not Found&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;Request&#39;</span> <span class="o">=&gt;</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">],</span>
+		<span class="p">))</span>
+		<span class="o">-&gt;</span><span class="na">output</span><span class="p">()</span>
+		<span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>request.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">public</span> <span class="k">function</span> <span class="nf">exec</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="nv">$class_name</span> <span class="o">=</span> <span class="s1">&#39;Resource_&#39;</span><span class="o">.</span><span class="nb">str_replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get_resource</span><span class="p">());</span>
+	<span class="nv">$class</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ReflectionClass</span><span class="p">(</span><span class="nv">$class_name</span><span class="p">);</span>
+	<span class="nv">$resource</span> <span class="o">=</span> <span class="nv">$class</span><span class="o">-&gt;</span><span class="na">newInstance</span><span class="p">(</span><span class="nv">$this</span><span class="p">);</span>
+	<span class="nv">$class</span><span class="o">-&gt;</span><span class="na">getMethod</span><span class="p">(</span><span class="s1">&#39;before&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">invoke</span><span class="p">(</span><span class="nv">$resource</span><span class="p">);</span>
+	<span class="nv">$class</span><span class="o">-&gt;</span><span class="na">getMethod</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">request_method</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">invoke</span><span class="p">(</span><span class="nv">$resource</span><span class="p">);</span>
+	<span class="nv">$class</span><span class="o">-&gt;</span><span class="na">getMethod</span><span class="p">(</span><span class="s1">&#39;after&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">invoke</span><span class="p">(</span><span class="nv">$resource</span><span class="p">);</span>
+	
+	<span class="nv">$response</span> <span class="o">=</span> <span class="nx">Response</span><span class="o">::</span><span class="na">instance</span><span class="p">();</span>
+	<span class="nv">$response</span><span class="o">-&gt;</span><span class="na">set_body</span><span class="p">(</span><span class="nv">$resource</span><span class="o">-&gt;</span><span class="na">get_data</span><span class="p">());</span>
+	<span class="k">return</span> <span class="nv">$response</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>response.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">public</span> <span class="k">function</span> <span class="nf">output</span><span class="p">()</span> 
+<span class="p">{</span>
+	<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_content_encoding</span><span class="p">();</span>
+	<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;Content-type:application/json;charset=utf-8&#39;</span><span class="p">);</span>
+	<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;Status:&#39;</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_status</span><span class="o">.</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_messages</span><span class="p">[</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_status</span><span class="p">]);</span>
+	<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;Content-Length: &#39;</span><span class="o">.</span><span class="nb">strlen</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_body</span><span class="p">));</span>
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_header</span> <span class="k">as</span> <span class="nv">$key</span> <span class="o">=&gt;</span> <span class="nv">$val</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nb">header</span><span class="p">(</span><span class="nv">$key</span><span class="o">.</span><span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="nv">$val</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">echo</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_body</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h3>RESTY特性</h3>
+<h4>轻量级</h4>
+<p>RESTY包含了核心的Request/Resource/Response/Route/Config/Validation功能，没有其他多余的部件，如Controller/View等等，很纯粹。一个工具应该把一件事做好，同时提供接口，这也是RESTY的哲学。</p>
+<h4>使用方便</h4>
+<p>使用时，只需定义好uri对应的Resource，然后编写Resource就行了，其他的事RESTY会帮你搞定。</p>
+<p>config/resource.php demo</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+
+<span class="k">return</span> <span class="k">array</span><span class="p">(</span>
+	<span class="s1">&#39;/example/(?&lt;id&gt;[0-9]+)&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;example&#39;</span><span class="p">,</span>
+	<span class="s1">&#39;/example/foo/(?&lt;name&gt;[a-zA-Z_0-9]+)&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;example/foo&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+</code></pre>
+</div>
+<p>可以看到uri支持正则，没错，原生的php正则。resource部分对应resource文件的路径(不包括后缀)</p>
+<p>resource/example.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">Resource_Example</span> <span class="k">extends</span> <span class="nx">Resource</span>
+<span class="p">{</span>
+	<span class="k">public</span> <span class="k">function</span> <span class="nf">get</span><span class="p">()</span>
+	<span class="p">{</span>
+		<span class="c">/* set etag</span>
+<span class="c">		Response::instance()</span>
+<span class="c">			-&gt;if_none_match(md5(&#39;hello&#39;))</span>
+<span class="c">			-&gt;add_etag(md5(&#39;hello&#39;))</span>
+<span class="c">			;</span>
+<span class="c">		//*/</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">validate</span><span class="p">())</span>
+		<span class="p">{</span>
+			<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_data</span> <span class="o">=</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get_data</span><span class="p">();</span>
+		<span class="p">}</span>
+		<span class="k">else</span> 
+		<span class="p">{</span>
+			<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_data</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;error&#39;</span> <span class="o">=&gt;</span> <span class="nb">implode</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">getErrors</span><span class="p">()),</span> <span class="s1">&#39;request&#39;</span> <span class="o">=&gt;</span> <span class="nv">$_SERVER</span><span class="p">[</span><span class="s1">&#39;REQUEST_URI&#39;</span><span class="p">]);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">public</span> <span class="k">function</span> <span class="nf">post</span><span class="p">()</span>
+	<span class="p">{</span>
+		<span class="nv">$this</span><span class="o">-&gt;</span><span class="na">_data</span> <span class="o">=</span> <span class="nb">array_merge</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">get_data</span><span class="p">(),</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;type&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;post&#39;</span><span class="p">));</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>每一个资源对应4个http方法。RESTY还很贴心地提供了Validation部件(基本上是直接从Kohana中K过来的)，方便对数据进行校验。</p>
+<h4>易扩展</h4>
+<p>system/classes文件夹下的类文件，都可以在app/classes文件夹下扩展，而且使用时不用做任何修改。假设你之前已经写了不少Resource，忽然想到要扩展系统的Resource类，正常的做法是定义一个MY_Resource之类的类文件来扩展系统的Resource类，然后使用时使用MY_Resource而不是Resource。但这样就会有个问题，之前使用的Resource类都要做修改了，可谓牵一发而动全身。RESTY就方便了，同样要扩展Resource类，只要在app/classes下新建一个resource.php文件，然后扩展Resty_Resource类即可。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+
+<span class="k">class</span> <span class="nc">Resource</span> <span class="k">extends</span> <span class="nx">Resty_Resource</span>
+<span class="p">{</span>
+	<span class="k">public</span> <span class="k">function</span> <span class="nf">foo</span><span class="p">()</span>
+	<span class="p">{</span>
+		<span class="c">//...</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这样使用时还是一样的Resource类，但却多了foo方法。这也是从Kohana学到的无缝扩展大法（题外话：Kohana真是个不错的框架，各位不妨一试）。原理就是在类自动加载时会先去app/classes文件夹下去找，如果没找到的话再去system/classes下找。</p>
+<h4>验证功能</h4>
+<p>作为一个比较完整的REST框架，Validation还是不能少的，为了不重复制造轮子，直接把Kohana的验证类搬了过来，稍作修改。</p>
+<p>配置：config/validation.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">return</span> <span class="k">array</span><span class="p">(</span>
+	<span class="s1">&#39;example&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+		<span class="s1">&#39;get&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+			<span class="s1">&#39;filters&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+				<span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+					<span class="s1">&#39;trim&#39;</span> <span class="o">=&gt;</span> <span class="k">null</span><span class="p">,</span>
+				<span class="p">),</span>
+			<span class="p">),</span>
+			<span class="s1">&#39;rules&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+				<span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+					<span class="s1">&#39;not_empty&#39;</span> <span class="o">=&gt;</span> <span class="k">null</span><span class="p">,</span>
+					<span class="s1">&#39;min_length&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="m">2</span><span class="p">),</span>
+					<span class="s1">&#39;digit&#39;</span> <span class="o">=&gt;</span> <span class="k">null</span><span class="p">,</span>
+				<span class="p">),</span>
+			<span class="p">),</span>
+		<span class="p">),</span>
+	<span class="p">),</span>
+<span class="p">);</span>
+</code></pre>
+</div>
+<p>错误提示：config/message.php</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">return</span> <span class="k">array</span><span class="p">(</span>
+	<span class="s1">&#39;example&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+		<span class="s1">&#39;id&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span>
+			<span class="s1">&#39;digit&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;id必须是数字&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;not_empty&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;id不能为空&#39;</span><span class="p">,</span>
+			<span class="s1">&#39;min_length&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;id长度至少为:value&#39;</span><span class="p">,</span>
+		<span class="p">),</span>
+	<span class="p">),</span>
+<span class="p">);</span>
+</code></pre>
+</div>
+<h4>Config功能</h4>
+<p>config文件如上面所示，就是返回一个数组。使用也很简单:</p>
+<div class="highlight"><pre><code class="php"><span class="x">// 获取config/message.php文件的example key对应的内容</span>
+<span class="x">Config::get(&#39;message.example&#39;);</span>
+
+<span class="x">// 设置config(不会写入到文件，只在一个http request有效)</span>
+<span class="x">Config::set(&#39;message.example.id.digit&#39;, &#39;id can be anything&#39;);</span>
+</code></pre>
+</div>
+<h3>下载</h3>
+<p><a href="https://github.com/lzyy/resty">https://github.com/lzyy/resty</a></p>
+<p>欢迎使用，并反馈:)</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>API的返回值形式 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/05/04/api-return-format.html&via=lzyy&text=API的返回值形式"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>API的返回值形式</h2>
+				<div class="cnt">
+					<p>假设我们有一个rest服务，该rest服务会返回json格式的信息，以twitter为例：访问`http://api.twitter.com/1/users/show.json?user_id=12345`会得到如下结果：</p>
+<div class="highlight"><pre><code class="javascript"><span class="p">{</span>
+	<span class="nx">id_str</span><span class="o">:</span> <span class="s2">&quot;12345&quot;</span>
+	<span class="nx">is_translator</span><span class="o">:</span> <span class="kc">false</span>
+	<span class="nx">following</span><span class="o">:</span> <span class="kc">null</span>
+	<span class="nx">profile_text_color</span><span class="o">:</span> <span class="s2">&quot;333333&quot;</span>
+	<span class="nx">description</span><span class="o">:</span> <span class="s2">&quot;ID 12345&quot;</span>
+	<span class="nx">status</span><span class="o">:</span> <span class="p">{</span>
+		<span class="nx">coordinates</span><span class="o">:</span> <span class="kc">null</span>
+		<span class="nx">text</span><span class="o">:</span> <span class="err">&quot;</span><span class="nx">Follow</span> <span class="err">@</span><span class="nx">ha</span>
+	<span class="p">}</span>
+	<span class="c">//...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这是一个正常用户的信息，如果访问一个不存在用户，会返回类似下面的结果</p>
+<div class="highlight"><pre><code class="javascript"><span class="p">{</span>
+	<span class="nx">request</span><span class="o">:</span> <span class="s2">&quot;/1/users/show.json?user_id=12345111&quot;</span>
+	<span class="nx">error</span><span class="o">:</span> <span class="s2">&quot;Not found&quot;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>有没有发现，两次请求只是userid不一样，但返回形式却截然不同，这其实也不是什么大问题，客户端只要先检查一下是否有error这个key，就能知道这次请求是否出错。不过我想了个另一个方法，能让返回形式有相同的结构。</p>
+<p>借鉴了一下http协议，把返回结果分为header和body两部分，一个正常的请求会返回如下的信息</p>
+<div class="highlight"><pre><code class="javascript"><span class="p">{</span>
+	<span class="s1">&#39;status&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;ok&#39;</span><span class="o">,</span>
+	<span class="s1">&#39;content&#39;</span> <span class="o">=&gt;</span> 
+	<span class="p">{</span>
+		<span class="s1">&#39;blah&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;blah&#39;</span><span class="o">,</span>
+		<span class="c">//...</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>status相当于http的status头信息，通过检查该信息可以知道请求是否正常，如果是&#8217;ok&#8217;则为正常，如为&#8217;error&#8217;则不正常，如果返回出错，则会在content字段里包含足够的错误信息</p>
+<div class="highlight"><pre><code class="javascript"><span class="p">{</span>
+	<span class="s1">&#39;status&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;error&#39;</span><span class="o">,</span>
+	<span class="s1">&#39;content&#39;</span> <span class="o">=&gt;</span> 
+	<span class="p">{</span>
+		<span class="s1">&#39;request&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;http://...&#39;</span><span class="o">,</span>
+		<span class="s1">&#39;code&#39;</span> <span class="o">=&gt;</span> <span class="mi">404</span><span class="o">,</span>
+		<span class="s1">&#39;message&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;file not found&#39;</span><span class="o">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这里只包含了最基本的3项信息，request指代的是本次请求的url，code类似http状态码，message指代出错信息。</p>
+<p>这样是不是更优雅些？</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

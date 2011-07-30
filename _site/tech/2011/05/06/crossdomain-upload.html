@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>iframe无刷新跨域上传文件并获取返回值 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/05/06/crossdomain-upload.html&via=lzyy&text=iframe无刷新跨域上传文件并获取返回值"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>iframe无刷新跨域上传文件并获取返回值</h2>
+				<div class="cnt">
+					<p>通常我们会有一个统一的上传接口，这个接口会被其他的服务调用。如果出现不同域，还需要无刷新上传文件，并且获取返回值，这就有点麻烦了。比如，新浪微博启用了新域名www.weibo.com，但接口还是使用原来的域：picupload.t.sina.com.cn。</p>
+<p>研究了一下新浪微博的处理方法，这里大概演示一下。</p>
+<p>首先是一个正常的上传页面 upload.html</p>
+<div class="highlight"><pre><code class="html"><span class="nt">&lt;script&gt;</span>
+	<span class="c">// 这个函数将来会被iframe用到</span>
+	<span class="kd">function</span> <span class="nx">getIframeVal</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nx">alert</span><span class="p">(</span><span class="nx">val</span><span class="p">);</span>
+	<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+
+<span class="c">&lt;!-- 我把upload.com指向了127.0.0.1 --&gt;</span>
+<span class="nt">&lt;form</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="na">target=</span><span class="s">&quot;if&quot;</span> <span class="na">enctype=</span><span class="s">&quot;multipart/form-data&quot;</span> <span class="na">action=</span><span class="s">&quot;http://upload.com/playground/js/deal.php?cb=http://localhost/playground/js/deal_cd.html&quot;</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;file&quot;</span> <span class="na">name=</span><span class="s">&quot;file&quot;</span> <span class="nt">/&gt;</span>
+	<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;SUBMIT&quot;</span> <span class="na">value=</span><span class="s">&quot;upload&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+<span class="nt">&lt;IFRAME</span> <span class="na">id=</span><span class="s">&quot;if&quot;</span> <span class="na">name=</span><span class="s">&quot;if&quot;</span> <span class="na">src=</span><span class="s">&quot;about:blank&quot;</span> <span class="na">frameborder=</span><span class="s">&#39;0&#39;</span><span class="nt">&gt;&lt;/IFRAME&gt;</span>
+</code></pre>
+</div>
+<p>这里有一个关键点是form的target要指向iframe，同时把iframe隐藏起来，这样上传的处理结果就会显示在该iframe里。action里的cb(callback)参数表示处理完成后要跳转的url，因为我们的目标是iframe，所以只会把跳转的页面输出到iframe，而不会让当前页面跳转。</p>
+<p>还有一点，callback url要和当前页面同域。跨域的iframe无法调用父页面的内容。</p>
+<p>再来看看deal.php，也就是form的action</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="c">// deal upload file</span>
+<span class="c">// and get file id, you can pass other params either</span>
+<span class="nb">header</span><span class="p">(</span><span class="s1">&#39;location:&#39;</span><span class="o">.</span><span class="nv">$_GET</span><span class="p">[</span><span class="s1">&#39;cb&#39;</span><span class="p">]</span><span class="o">.</span><span class="s1">&#39;?file_id=123&#39;</span><span class="p">);</span>
+</code></pre>
+</div>
+<p>这里可以处理文件，然后入库。操作完成后，把文件的id及其他信息都放在url里，最后跳转到这个url。</p>
+<p>最后来看看deal_cd.html，也就是刚刚deal.php跳转到的url，这个文件的内容会填充到页面的iframe里。</p>
+<div class="highlight"><pre><code class="html"><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+	<span class="kd">var</span> <span class="nx">rs</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">).</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="nb">window</span><span class="p">.</span><span class="nx">parent</span><span class="p">.</span><span class="nx">getIframeVal</span><span class="p">(</span><span class="nx">rs</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">).</span><span class="nx">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="nt">&lt;/script&gt;</span>
+</code></pre>
+</div>
+<p>这里调用了父窗口的getIframeVal方法，这样父页面就获得了文件的id。</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

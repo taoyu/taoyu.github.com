@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>php的多进程 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2010/08/27/php-process-control.html&via=lzyy&text=php的多进程"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>php的多进程</h2>
+				<div class="cnt">
+					<p class="date">2010-08-27</p>
+<p>一般有两种方法，一种是使用PHP自带的pcntl_*函数(仅限linux)，另一种就是使用popen/proc_open，然后在php内部控制进程数量。</p>
+<h3>使用pcntl_*函数</h3>
+<p>PHP提供了一系列的pcntl_*函数，顾名思义就是process control functions，专门用来管理进程的。最常用的就是pcntl_fork和pcntl_wait。</p>
+<p>pcntl_fork的作用就是从当前的进程再派生出一个子进程。pcntl_wait的作用是挂起当前进程，直到一个子进程中止。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="c">//配合pcntl_signal使用</span>
+<span class="k">declare</span><span class="p">(</span><span class="nx">ticks</span><span class="o">=</span><span class="m">1</span><span class="p">);</span>
+<span class="c">//最大的子进程数量</span>
+<span class="nv">$max</span> <span class="o">=</span> <span class="m">5</span><span class="p">;</span>
+<span class="c">//当前的子进程数量</span>
+<span class="nv">$child</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+ 
+<span class="c">//当子进程退出时，会触发该函数</span>
+<span class="k">function</span> <span class="nf">sig_handler</span><span class="p">(</span><span class="nv">$sig</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$child</span><span class="p">;</span>
+	<span class="k">switch</span><span class="p">(</span><span class="nv">$sig</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="nx">SIGCHLD</span><span class="o">:</span>
+			<span class="k">echo</span> <span class="s1">&#39;SIGCHLD received&#39;</span><span class="o">.</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+			<span class="nv">$child</span><span class="o">--</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+ 
+<span class="c">//注册子进程退出时调用的函数</span>
+<span class="nb">pcntl_signal</span><span class="p">(</span><span class="nx">SIGCHLD</span><span class="p">,</span> <span class="s2">&quot;sig_handler&quot;</span><span class="p">);</span>
+ 
+<span class="k">while</span><span class="p">(</span><span class="k">true</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nv">$child</span><span class="o">++</span><span class="p">;</span>
+	<span class="sd">/**</span>
+<span class="sd">	 * 这个函数会返回两个值，一个为0，表示子进程；一个为正整数表示子进程的id</span>
+<span class="sd">	 * 所以if和else里的两段代码都会执行</span>
+<span class="sd">	 * if里的代码是父进程执行的</span>
+<span class="sd">	 * else里的代码是子进程执行的</span>
+<span class="sd">	 */</span>
+	<span class="nv">$pid</span> <span class="o">=</span> <span class="nb">pcntl_fork</span><span class="p">();</span>
+	<span class="k">if</span> <span class="p">(</span><span class="nv">$pid</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c">//这里是父进程执行的代码</span>
+		<span class="c">//如果子进程数超过了最大值，则挂起父进程</span>
+		<span class="c">//也就是说while语句不会继续执行</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nv">$child</span> <span class="o">&gt;=</span> <span class="nv">$max</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nb">pcntl_wait</span><span class="p">(</span><span class="nv">$status</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">else</span> <span class="p">{</span>
+		<span class="c">//这里是子进程执行的代码</span>
+		<span class="c">//如果要执行其他命令的话，使用pcntl_exec</span>
+		<span class="k">echo</span> <span class="s2">&quot;starting new child | now we have </span><span class="si">$child</span><span class="s2"> child process</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+		<span class="nb">sleep</span><span class="p">(</span><span class="nb">rand</span><span class="p">(</span><span class="m">3</span><span class="p">,</span> <span class="m">5</span><span class="p">));</span>
+		<span class="k">exit</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>上面这段代码就是保证有5个子进程一直在干活，如果$child数量大于$max，就等子进程结束后再继续运行。子进程结束后会调用 sig_handler函数，sig_handler会将$child数量减1，那边while继续执行。</p>
+<h3>使用popen/proc_open</h3>
+<p>popen会创建一个管道来连接该进程，然后使用fread/fgets/stream_get_contents来读取该进程返回的结果。跟 exec或system之类的函数不同的是，exec会等待命令执行完成，再运行下面的代码，但popen不会。proc_open又更加强大一些，支持 stdin和stdout，路径设置等等。</p>
+<p>因为这些函数只负责创建，没有相应的管理方法，所以只能在PHP文件内部自己来实现。<br />
+demo(引用自张宴——<a href="http://blog.s135.com/post/311/">PHP多进程并发控制的测试用例</a>)</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">function</span> <span class="nf">run</span><span class="p">(</span><span class="nv">$input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">global</span> <span class="nv">$p_number</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nv">$p_number</span> <span class="o">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$p_number</span> <span class="o">=</span> <span class="nx">worker_processes</span><span class="p">(</span><span class="nv">$p_number</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="nv">$p_number</span> <span class="o">=</span> <span class="nv">$p_number</span> <span class="o">-</span> <span class="m">1</span><span class="p">;</span>
+    <span class="nv">$out</span> <span class="o">=</span> <span class="nb">popen</span><span class="p">(</span><span class="s2">&quot;/bin/sh /opt/zhangyan.sh </span><span class="se">\&quot;</span><span class="si">{</span><span class="nv">$input</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> &amp;&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">);</span>
+    <span class="nb">pclose</span><span class="p">(</span><span class="nv">$out</span><span class="p">);</span>
+<span class="p">}</span>
+ 
+<span class="k">function</span> <span class="nf">worker_processes</span><span class="p">(</span><span class="nv">$p_number</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nv">$limit</span> <span class="o">=</span> <span class="m">500</span><span class="p">;</span><span class="c">//允许推到后台的最大进程数</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nv">$p_number</span> <span class="o">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="nv">$cmd</span> <span class="o">=</span> <span class="nb">popen</span><span class="p">(</span><span class="s2">&quot;ps -ef | grep </span><span class="se">\&quot;</span><span class="s2">/opt/zhangyan.sh</span><span class="se">\&quot;</span><span class="s2"> | grep -v grep | wc -l&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">);</span>
+        <span class="nv">$line</span> <span class="o">=</span> <span class="nb">fread</span><span class="p">(</span><span class="nv">$cmd</span><span class="p">,</span> <span class="m">512</span><span class="p">);</span>
+        <span class="nb">pclose</span><span class="p">(</span><span class="nv">$cmd</span><span class="p">);</span>
+        <span class="nv">$p_number</span> <span class="o">=</span> <span class="nv">$limit</span> <span class="o">-</span> <span class="nv">$line</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nv">$p_number</span> <span class="o">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="nb">sleep</span><span class="p">(</span><span class="m">1</span><span class="p">);</span><span class="c">//暂停1秒钟</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nv">$p_number</span><span class="p">;</span>
+<span class="p">}</span>
+ 
+<span class="nv">$input</span> <span class="o">=</span> <span class="s2">&quot;http://blog.s135.com&quot;</span><span class="p">;</span> <span class="c">//模拟从队列文件中读取到的数据</span>
+<span class="k">for</span> <span class="p">(</span><span class="nv">$i</span> <span class="o">=</span> <span class="m">1</span><span class="p">;</span> <span class="nv">$i</span> <span class="o">&lt;=</span> <span class="m">1000</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="nx">run</span><span class="p">(</span><span class="nv">$input</span><span class="p">);</span>
+    <span class="k">echo</span> <span class="s2">&quot;Idle process number: &quot;</span> <span class="o">.</span> <span class="nv">$p_number</span> <span class="o">.</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</code></pre>
+</div>
+<h4>程序的逻辑：</h4>
+<p>1. 设置/opt/zhangyan.php最多允许生成500个子进程；</p>
+<p>2. 当/opt/zhangyan.php读取到一条数据后，将允许生成的子进程数减1（空闲进程数$p_number=500-1=499），然后将数据交给/opt/zhangyan.sh去后台处理，不等待/opt/zhangyan.sh处理结束，继续读取下一条数据；</p>
+<p>3. 当允许生成的子进程数减至0时（空闲进程数$p_number=0），/opt/zhangyan.php会等待1秒钟，然后检查后台还有多少个/opt /zhangyan.sh子进程尚未处理结束；</p>
+<p>4. 如果1秒钟之后/opt/zhangyan.php发现后台的/opt /zhangyan.sh子进程数还是500（空闲进程数$p_number=0），会继续等待1秒钟，如此反复；</p>
+<p>5. 如果/opt /zhangyan.php发现后台尚未处理结束的/opt/zhangyan.sh子进程数减少到300个了（空闲进程数$p_number=500-300=200），那么/opt/zhangyan.php会再往后台推送200个/opt/zhangyan.sh子进程；</p>
+<p>总体来说还是使用pcntl_*系函数更方便一些，逻辑也更清楚。</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

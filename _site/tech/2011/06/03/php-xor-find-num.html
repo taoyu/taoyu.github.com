@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>一道面试题的思考 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/06/03/php-xor-find-num.html&via=lzyy&text=一道面试题的思考"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>一道面试题的思考</h2>
+				<div class="cnt">
+					<p>前几天下班途中跟同事聊到了一道面试题，大意是，给你1-1000个连续自然数，然后从中随机去掉两个，再打乱顺序，要求只遍历一次，求出被去掉的两个数。</p>
+<p>这题其实挺为面试者的，因为要求1分钟内说出解法，且不能使用计算机、纸和笔。如果之前没有遇到过类似的题目，加上面试时的紧张心情，很难能在那么短的时间里想到解决方案，至少我做不到。</p>
+<p>好在我有时间，上网看了一下，比较常见的有两种方法</p>
+<h3>求方程组的解</h3>
+<p>遍历被打乱的数组时，计算value的累加值和value平方的累加值。结合未打乱之前的数组，这样就能得出x+y = m与x*x+y*y = n两个方程，解这组方程即可算出被去掉的两个数。这种方法比较容易理解，实现起来也比较简单</p>
+<h3>使用异或</h3>
+<p>这个就麻烦点了。先来说说异或的定义：两个二进制位不同的取1。再来说说异或的两个特性：顺序无关 / 对一个数异或两次等于没有异或。顺序无关就是说异或的元素可以随意交换顺序，而不会影响结果。异或两次可以理解为+x和-x。</p>
+<h4>计算出x^y的值</h4>
+<p>首先，这两个数组(打乱前和打乱后)各自异或，也就是1^2^&#8230;^1000，得到两个异或值。再对这两个异或值进行一次异或，这样就得到了x^y的指(重复部分互相抵消了)。</p>
+<div class="highlight"><pre><code class="php"><span class="x">// 其实就是把数组的所有元素进行异或，重复部分互相抵消</span>
+<span class="x">result = 1^2^...^1000^1^2...^1000;</span>
+<span class="x">result = 1^1^2^2...^x...^y...^1000^1000;</span>
+<span class="x">result = x^y;</span>
+</code></pre>
+</div>
+<h4>获取计算出的异或值的1所在的位置，并继续异或</h4>
+<p>因为x和y是两个不同的整数，所以这两个数的异或结果，转化为二进制的话，一定在某位是1，假设在第3位。也就是说如果把原始数组按第3位是否为0进行划分，就可以分成两个数组，每个数组各包含一个被抽取的数。如果打乱后的数组也按这个规则划分为两个数组，这样就得到了4个数组，其中两组是第3位为0，另外两组是第3位为1。把第3位为0的两个数组所有元素进行异或就能得到被抽取的一个数，同理也就能获得另外一个被抽取的数，于是问题解决。</p>
+<h3>PHP的实现</h3>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span> 
+<span class="c">// 起始长度</span>
+<span class="nv">$length</span> <span class="o">=</span> <span class="m">10</span><span class="p">;</span>
+
+<span class="nv">$arr</span> <span class="o">=</span> <span class="nv">$arr_copy</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="nv">$length</span><span class="p">);</span>
+<span class="c">// 将要被移除的两个数</span>
+<span class="nv">$num1</span> <span class="o">=</span> <span class="nv">$num2</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+<span class="c">// 两个数组异或再互相异或的结果</span>
+<span class="nv">$num1_num2_xor</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+<span class="c">// 存放被pos分割的数字</span>
+<span class="nv">$arr_0</span> <span class="o">=</span> <span class="nv">$arr_1</span> <span class="o">=</span> <span class="nv">$arr_copy_0</span> <span class="o">=</span> <span class="nv">$arr_copy_1</span> <span class="o">=</span> <span class="k">array</span><span class="p">();</span>
+
+<span class="c">// 获取一个数字转化为二进制后1所在的位置</span>
+<span class="k">function</span> <span class="nf">get_pos</span><span class="p">(</span><span class="nv">$num</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">for</span><span class="p">(</span><span class="nv">$i</span><span class="o">=</span><span class="m">0</span> <span class="p">;</span><span class="nv">$i</span><span class="o">&lt;</span><span class="m">10</span><span class="p">;</span> <span class="nv">$i</span><span class="o">++</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nv">$b</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="nv">$i</span><span class="p">);</span>
+		<span class="nv">$rs</span> <span class="o">=</span> <span class="nv">$num</span><span class="o">&amp;</span><span class="nv">$b</span><span class="p">;</span>
+		<span class="k">if</span><span class="p">(</span><span class="nv">$rs</span> <span class="o">%</span> <span class="m">2</span> <span class="o">==</span> <span class="m">0</span> <span class="o">&amp;&amp;</span> <span class="nv">$rs</span> <span class="o">!=</span> <span class="m">0</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="k">return</span> <span class="nv">$i</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="m">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c">// 进行异或计算</span>
+<span class="k">function</span> <span class="nf">do_xor</span><span class="p">(</span><span class="nv">$x</span><span class="p">,</span> <span class="nv">$y</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">return</span> <span class="nv">$x</span><span class="o">^</span><span class="nv">$y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">init</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$arr</span><span class="p">,</span> <span class="nv">$arr_copy</span><span class="p">,</span> <span class="nv">$num1</span><span class="p">,</span> <span class="nv">$num2</span><span class="p">,</span> <span class="nv">$num1_num2_xor</span><span class="p">,</span> <span class="nv">$length</span><span class="p">;</span>
+
+	<span class="nv">$rand_index_1</span> <span class="o">=</span> <span class="nb">mt_rand</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="nv">$length</span><span class="o">/</span><span class="m">2</span><span class="p">);</span>
+	<span class="nv">$rand_index_2</span> <span class="o">=</span> <span class="nb">mt_rand</span><span class="p">(</span><span class="nv">$length</span><span class="o">/</span><span class="m">2</span><span class="o">+</span><span class="m">1</span><span class="p">,</span> <span class="nv">$length</span><span class="o">-</span><span class="m">1</span><span class="p">);</span>
+
+	<span class="c">// 获取两个随机数，然后去掉从数组中去掉它们</span>
+	<span class="nv">$num1</span> <span class="o">=</span> <span class="nv">$arr</span><span class="p">[</span><span class="nv">$rand_index_1</span><span class="p">];</span>
+	<span class="nv">$num2</span> <span class="o">=</span> <span class="nv">$arr</span><span class="p">[</span><span class="nv">$rand_index_2</span><span class="p">];</span>
+
+	<span class="nb">unset</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="nv">$rand_index_1</span><span class="p">]);</span>
+	<span class="nb">unset</span><span class="p">(</span><span class="nv">$arr</span><span class="p">[</span><span class="nv">$rand_index_2</span><span class="p">]);</span>
+
+	<span class="nx">cacl_num1_num2_xor</span><span class="p">();</span>
+	<span class="nx">divide_by_pos</span><span class="p">(</span><span class="nx">get_pos</span><span class="p">(</span><span class="nv">$num1_num2_xor</span><span class="p">));</span>
+	<span class="nx">get_num</span><span class="p">();</span>
+
+<span class="p">}</span>
+
+<span class="c">// 获取两个数组各自异或再互相异或的结果</span>
+<span class="k">function</span> <span class="nf">cacl_num1_num2_xor</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$arr</span><span class="p">,</span> <span class="nv">$arr_copy</span><span class="p">,</span> <span class="nv">$num1_num2_xor</span><span class="p">;</span>
+	<span class="nv">$arr_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+	<span class="nv">$arr_copy_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr_copy</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+
+	<span class="nv">$num1_num2_xor</span> <span class="o">=</span> <span class="nv">$arr_xor</span> <span class="o">^</span> <span class="nv">$arr_copy_xor</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c">// 根据pos将两个数组再各自细分成两个数组</span>
+<span class="c">// 其中$arr_copy_0和$arr_copy_1各自包含了一个被抽取的数</span>
+<span class="k">function</span> <span class="nf">divide_by_pos</span><span class="p">(</span><span class="nv">$pos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$arr</span><span class="p">,</span> <span class="nv">$arr_copy</span><span class="p">,</span> <span class="nv">$arr_0</span><span class="p">,</span> <span class="nv">$arr_1</span><span class="p">,</span> <span class="nv">$arr_copy_0</span><span class="p">,</span> <span class="nv">$arr_copy_1</span><span class="p">;</span>
+	<span class="nv">$b</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="nv">$pos</span><span class="p">);</span>
+
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$arr</span> <span class="k">as</span> <span class="nv">$val</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nv">$rs</span> <span class="o">=</span> <span class="nv">$val</span><span class="o">&amp;</span><span class="nv">$b</span><span class="p">;</span>
+		<span class="k">if</span><span class="p">(</span><span class="nv">$rs</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="nv">$arr_0</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$val</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span>
+		<span class="p">{</span>
+			<span class="nv">$arr_1</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$val</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">foreach</span><span class="p">(</span><span class="nv">$arr_copy</span> <span class="k">as</span> <span class="nv">$val</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nv">$rs</span> <span class="o">=</span> <span class="nv">$val</span><span class="o">&amp;</span><span class="nv">$b</span><span class="p">;</span>
+		<span class="k">if</span><span class="p">(</span><span class="nv">$rs</span> <span class="o">==</span> <span class="m">0</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="nv">$arr_copy_0</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$val</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="k">else</span>
+		<span class="p">{</span>
+			<span class="nv">$arr_copy_1</span><span class="p">[]</span> <span class="o">=</span> <span class="nv">$val</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c">// 对这4个数组进行对应的异或操作，就出结果了</span>
+<span class="k">function</span> <span class="nf">get_num</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$arr_0</span><span class="p">,</span> <span class="nv">$arr_1</span><span class="p">,</span> <span class="nv">$arr_copy_0</span><span class="p">,</span> <span class="nv">$arr_copy_1</span><span class="p">,</span> <span class="nv">$num1</span><span class="p">,</span> <span class="nv">$num2</span><span class="p">;</span>
+	<span class="nv">$arr_0_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr_0</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+	<span class="nv">$arr_copy_0_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr_copy_0</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+	<span class="nv">$cacl_num1</span> <span class="o">=</span> <span class="nv">$arr_0_xor</span><span class="o">^</span><span class="nv">$arr_copy_0_xor</span><span class="p">;</span>
+
+	<span class="nv">$arr_1_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr_1</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+	<span class="nv">$arr_copy_1_xor</span> <span class="o">=</span> <span class="nb">array_reduce</span><span class="p">(</span><span class="nv">$arr_copy_1</span><span class="p">,</span> <span class="s1">&#39;do_xor&#39;</span><span class="p">);</span>
+	<span class="nv">$cacl_num2</span> <span class="o">=</span> <span class="nv">$arr_1_xor</span><span class="o">^</span><span class="nv">$arr_copy_1_xor</span><span class="p">;</span>
+
+	<span class="k">echo</span> <span class="nv">$cacl_num1</span><span class="o">.</span><span class="s1">&#39; / &#39;</span><span class="o">.</span><span class="nv">$cacl_num2</span><span class="o">.</span> <span class="nx">PHP_EOL</span><span class="p">;</span>
+	<span class="k">echo</span> <span class="nv">$num1</span><span class="o">.</span><span class="s1">&#39; / &#39;</span><span class="o">.</span><span class="nv">$num2</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">init</span><span class="p">();</span>
+</code></pre>
+</div>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

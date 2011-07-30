@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>javascript大杂烩 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/03/04/javascript.html&via=lzyy&text=javascript大杂烩"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>javascript大杂烩</h2>
+				<div class="cnt">
+					<p>花了点时间学习了下js基础，跟大家分享一下，有不到之处，欢迎指出 :)</p>
+<h3>关于对象</h3>
+<h4>对象的创建</h4>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">newObj</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+<span class="c">// var newObj = {};</span>
+<span class="nx">newObj</span><span class="p">[</span><span class="s1">&#39;someValue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;val&#39;</span><span class="o">;</span>
+</code></pre>
+</div>
+<h4>一切皆对象</h4>
+<div class="highlight"><pre><code class="javascript"><span class="p">[</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="p">]</span> <span class="k">instanceof</span> <span class="nb">Object</span> <span class="c">// true</span>
+<span class="p">{</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">:</span><span class="mi">4</span><span class="p">}</span> <span class="k">instanceof</span> <span class="nb">Object</span> <span class="c">//true</span>
+</code></pre>
+</div>
+<p>但也有些特殊的对象，如3, &#8216;str&#8217;, true等等，但如果用instanceof测试的话，会发现</p>
+<div class="highlight"><pre><code class="javascript"><span class="s1">&#39;foo&#39;</span> <span class="k">instanceof</span> <span class="nb">Object</span> <span class="c">// false</span>
+<span class="mi">3</span> <span class="k">instanceof</span> <span class="nb">Object</span> <span class="c">// false</span>
+<span class="kc">true</span> <span class="k">instanceof</span> <span class="nb">Object</span> <span class="c">// false</span>
+</code></pre>
+</div>
+<p>但它们真的也是对象</p>
+<div class="highlight"><pre><code class="javascript"><span class="s1">&#39;foo&#39;</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">==</span> <span class="nb">String</span> <span class="c">// true</span>
+<span class="kc">true</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">==</span> <span class="nb">Boolean</span> <span class="c">// true</span>
+<span class="mi">3</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">==</span> <span class="nb">Number</span> <span class="c">// true</span>
+</code></pre>
+</div>
+<p>还有一个理由</p>
+<div class="highlight"><pre><code class="javascript"><span class="nb">Number</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">times</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">func</span><span class="p">)</span> <span class="p">{</span>
+   <span class="k">for</span><span class="p">(</span><span class="kd">var</span> <span class="nx">index</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="nx">index</span> <span class="o">&lt;=</span> <span class="k">this</span><span class="o">;</span> <span class="nx">index</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">func</span><span class="p">(</span><span class="nx">index</span><span class="p">);</span>
+   <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">(</span><span class="mi">5</span><span class="p">).</span><span class="nx">times</span><span class="p">(</span><span class="nx">print</span><span class="p">);</span>
+<span class="c">// 5 .times(print); //also works</span>
+<span class="c">// 加上括号是为了避免出现解析错误(js引擎会以为是小数点)</span>
+</code></pre>
+</div>
+<p>就连函数也是一个对象</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">fn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(){}</span>
+<span class="nx">fn</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="s1">&#39;hello world&#39;</span>
+<span class="nx">fn</span><span class="p">.</span><span class="nx">bar</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="nx">alert</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">foo</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<h4>对象的初始化</h4>
+<div class="highlight"><pre><code class="javascript"><span class="kd">function</span> <span class="nx">User</span><span class="p">(</span><span class="nx">first</span><span class="o">,</span> <span class="nx">last</span><span class="p">){</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">first</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nx">last</span><span class="o">;</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="s2">&quot;John&quot;</span><span class="o">,</span> <span class="s2">&quot;Resig&quot;</span><span class="p">);</span>
+<span class="c">// var user = User(&#39;John&#39;, &#39;Resig&#39;);</span>
+</code></pre>
+</div>
+<p>一个function，可以看成是一个Class，也可以看成是一个正常的函数，这就麻烦了，因为无论加不加上new这个关键字，function都能正常运行，虽然结果会不一样。</p>
+<p>如果看成Class，使用new关键字初始化，那么function里的this指向当前的function。如果不使用new关键字，则function里的this默认指向Window</p>
+<p>有两种解决方法，一个是将Class function的首字母大写，如User，这样就能清楚地知道哪些function是Class。但这样还是避免不了写程序时粗心，忘了加new关键字。</p>
+<p>另一种方法就是不是用new关键字，在function里自动判断，保证返回的一定是当前对象</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">function</span> <span class="nx">User</span><span class="p">(</span><span class="nx">first</span><span class="o">,</span> <span class="nx">last</span><span class="p">){</span>
+  <span class="k">if</span> <span class="p">(</span> <span class="k">this</span> <span class="k">instanceof</span> <span class="nx">User</span> <span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">first</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nx">last</span><span class="o">;</span>
+  <span class="p">}</span> <span class="k">else</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nx">User</span><span class="p">(</span><span class="nx">first</span><span class="o">,</span> <span class="nx">last</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>更通用的方法是创建一个makeClass方法</p>
+<div class="highlight"><pre><code class="javascript"><span class="c">// makeClass - By John Resig (MIT Licensed)</span>
+<span class="kd">function</span> <span class="nx">makeClass</span><span class="p">(){</span>
+  <span class="k">return</span> <span class="kd">function</span><span class="p">(</span><span class="nx">args</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span> <span class="k">this</span> <span class="k">instanceof</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">callee</span> <span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span> <span class="k">typeof</span> <span class="k">this</span><span class="p">.</span><span class="nx">init</span> <span class="o">==</span> <span class="s2">&quot;function&quot;</span> <span class="p">)</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span> <span class="k">this</span><span class="o">,</span> <span class="nx">args</span><span class="p">.</span><span class="nx">callee</span> <span class="o">?</span> <span class="nx">args</span> <span class="o">:</span> <span class="nx">arguments</span> <span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">callee</span><span class="p">(</span> <span class="nx">arguments</span> <span class="p">);</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>因为函数名未知，所以使用了arguments.callee来实现。</p>
+<p>makeClass的使用</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">makeClass</span><span class="p">();</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">init</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">first</span><span class="o">,</span> <span class="nx">last</span><span class="p">){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="nx">first</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nx">last</span><span class="o">;</span>
+<span class="p">};</span>
+<span class="kd">var</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">User</span><span class="p">(</span><span class="s2">&quot;John&quot;</span><span class="o">,</span> <span class="s2">&quot;Resig&quot;</span><span class="p">);</span>
+<span class="nx">user</span><span class="p">.</span><span class="nx">name</span>
+<span class="c">// =&gt; &quot;John Resig&quot; </span>
+</code></pre>
+</div>
+<h4>对象的继承</h4>
+<p>每个function都有一个特殊的变量&quot;prototype&quot;，当实例化对象时，这个变量上的各个属性也会被附加到对象上</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">function</span> <span class="nx">Car</span><span class="p">(</span><span class="nx">model</span><span class="o">,</span> <span class="nx">year</span><span class="o">,</span> <span class="nx">miles</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">this</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">model</span><span class="o">;</span>
+	<span class="k">this</span><span class="p">.</span><span class="nx">year</span> <span class="o">=</span> <span class="nx">year</span><span class="o">;</span>
+	<span class="k">this</span><span class="p">.</span><span class="nx">miles</span> <span class="o">=</span> <span class="nx">miles</span><span class="o">;</span>
+<span class="p">}</span>
+
+<span class="nx">Car</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="nx">info</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">model</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">year</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">miles</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">car</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Car</span><span class="p">(</span><span class="s1">&#39;Benz&#39;</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">1500</span><span class="p">);</span>
+<span class="nx">alert</span><span class="p">(</span><span class="nx">car</span><span class="p">.</span><span class="nx">info</span><span class="p">());</span>
+</code></pre>
+</div>
+<p>如果不使用new关键字，prototype就失效了</p>
+<p>prototype属性也有一个特殊的属性&quot;constructor&quot;，通过它我们就能实现继承了</p>
+<div class="highlight"><pre><code class="javascript"><span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">inObj</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+ 
+<span class="kd">function</span> <span class="nx">A</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">this</span><span class="p">.</span><span class="nx">inA</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+<span class="p">}</span>
+ 
+<span class="nx">A</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">inAProto</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span>
+ 
+<span class="nx">B</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">A</span><span class="o">;</span>            <span class="c">// Hook up A into B&#39;s prototype chain</span>
+<span class="nx">B</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">B</span><span class="o">;</span>
+<span class="kd">function</span> <span class="nx">B</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="k">this</span><span class="p">.</span><span class="nx">inB</span> <span class="o">=</span> <span class="mi">4</span><span class="o">;</span>
+<span class="p">}</span>
+ 
+<span class="nx">B</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">inBProto</span> <span class="o">=</span> <span class="mi">5</span><span class="o">;</span>
+ 
+<span class="nx">x</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">B</span><span class="o">;</span>
+</code></pre>
+</div>
+<h3>闭包与模块化</h3>
+<p>闭包是一种现象，通常是因为一个function返回了一个内部的function，如</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">function</span> <span class="nx">f1</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">n</span> <span class="o">=</span> <span class="mi">2011</span><span class="o">;</span>
+	<span class="k">return</span> <span class="kd">function</span> <span class="nx">f2</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">alert</span><span class="p">(</span><span class="nx">n</span><span class="p">);</span> <span class="c">// 2011</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>可以看到内部function f2成功地得到了f1的local变量，又因为n被f2使用，所以变量n就常驻内存了<br />
+从这个角度上说，如果把f1看成一个class，n就变成了私有变量，而f2成为了公共方法，所以就有了模块化的概念</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">myNamespace</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="kd">var</span> <span class="nx">myPrivateVar</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+  <span class="kd">var</span> <span class="nx">myPrivateMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">someText</span><span class="p">){</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">someText</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="p">{</span>
+      <span class="nx">myPublicVar</span><span class="o">:</span> <span class="s2">&quot;foo&quot;</span><span class="o">,</span>
+      <span class="nx">myPublicFunction</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">bar</span><span class="p">){</span>
+          <span class="nx">myPrivateVar</span><span class="o">++;</span>
+          <span class="nx">myPrivateMethod</span><span class="p">(</span><span class="nx">bar</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})();</span>
+</code></pre>
+</div>
+<h3>其他</h3>
+<h4>避免命名污染的方法</h4>
+<div class="highlight"><pre><code class="javascript"><span class="c">// self executing</span>
+<span class="c">// if you want some var global accessable, put &quot;window.&quot; ahead</span>
+<span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">myVar</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="nx">myVar</span><span class="p">);</span>
+  <span class="nb">window</span><span class="p">.</span><span class="nx">globalVar</span> <span class="o">=</span> <span class="mi">3</span><span class="o">;</span>
+<span class="p">})();</span>
+</code></pre>
+</div>
+<h4>强大的prototype</h4>
+<div class="highlight"><pre><code class="javascript"><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">contains</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>  
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">length</span><span class="o">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>  
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">==</span> <span class="nx">value</span><span class="p">)</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>  
+    <span class="p">}</span>  
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>  
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">stringArray</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;foo&quot;</span><span class="o">,</span> <span class="s2">&quot;bar&quot;</span><span class="o">,</span> <span class="s2">&quot;foobar&quot;</span><span class="p">];</span>
+<span class="nx">stringArray</span><span class="p">.</span><span class="nx">contains</span><span class="p">(</span><span class="s2">&quot;foobar&quot;</span><span class="p">);</span>
+</code></pre>
+</div>
+<h4>方便的&quot;+&quot;</h4>
+<div class="highlight"><pre><code class="javascript"><span class="c">// Quick hex to dec conversion:</span>
+<span class="o">+</span><span class="s2">&quot;0xFF&quot;</span><span class="o">;</span>              <span class="c">// -&gt; 255</span>
+
+<span class="c">// Get a timestamp for now, the equivalent of `new Date().getTime()`:</span>
+<span class="o">+</span><span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+
+<span class="c">// Safer parsing than parseFloat()/parseInt()</span>
+<span class="nb">parseInt</span><span class="p">(</span><span class="s2">&quot;1,000&quot;</span><span class="p">);</span>    <span class="c">// -&gt; 1, not 1000</span>
+<span class="o">+</span><span class="s2">&quot;1,000&quot;</span><span class="o">;</span>             <span class="c">// -&gt; NaN, much better for testing user input</span>
+<span class="nb">parseInt</span><span class="p">(</span><span class="s2">&quot;010&quot;</span><span class="p">);</span>      <span class="c">// -&gt; 8, because of the octal literal prefix</span>
+<span class="o">+</span><span class="s2">&quot;010&quot;</span><span class="o">;</span>               <span class="c">// -&gt; 10, `Number()` doesn&#39;t parse octal literals </span>
+
+<span class="c">// A use case for this would be rare, but still useful in cases</span>
+<span class="c">// for shortening something like if (someVar === null) someVar = 0;</span>
+<span class="o">+</span><span class="kc">null</span><span class="o">;</span>                <span class="c">// -&gt; 0;</span>
+
+<span class="c">// Boolean to integer</span>
+<span class="o">+</span><span class="kc">true</span><span class="o">;</span>                <span class="c">// -&gt; 1;</span>
+<span class="o">+</span><span class="kc">false</span><span class="o">;</span>               <span class="c">// -&gt; 0;</span>
+
+<span class="c">// Other useful tidbits:</span>
+<span class="o">+</span><span class="s2">&quot;1e10&quot;</span><span class="o">;</span>              <span class="c">// -&gt; 10000000000</span>
+<span class="o">+</span><span class="s2">&quot;1e-4&quot;</span><span class="o">;</span>              <span class="c">// -&gt; 0.0001</span>
+<span class="o">+</span><span class="s2">&quot;-12&quot;</span><span class="o">;</span>               <span class="c">// -&gt; -12</span>
+</code></pre>
+</div>
+<p>注意：如果是字符串与数字相加的话，结果还是字符串，如&quot;hello&quot; + 3，结果为&quot;hello3&quot;</p>
+<h4>通过[]来获取/设置Object的属性</h4>
+<div class="highlight"><pre><code class="javascript"><span class="nx">a</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="nx">a</span><span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;hello&#39;</span><span class="o">;</span> <span class="c">// access reversed property</span>
+<span class="nx">a</span><span class="p">[</span><span class="s1">&#39;have space&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;world&#39;</span><span class="o">;</span> <span class="c">// has space</span>
+<span class="nx">a</span><span class="p">[</span><span class="s1">&#39;.class .subclass&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;value&#39;</span><span class="o">;</span> <span class="c">// can have .</span>
+</code></pre>
+</div>
+<h4>String的split和replace可以包含正则</h4>
+<div class="highlight"><pre><code class="javascript"><span class="s2">&quot;hello world   with  spaces&quot;</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/g</span><span class="p">);</span>
+<span class="c">//returns an array: [&quot;hello&quot;, &quot;world&quot;, &quot;with&quot;, &quot;spaces&quot;]</span>
+
+<span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+<span class="s2">&quot;foo bar baz &quot;</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\s+/g</span><span class="o">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span><span class="k">return</span> <span class="nx">i</span><span class="o">++</span><span class="p">});</span>
+<span class="c">//returns &quot;foo1bar2baz3&quot;</span>
+</code></pre>
+</div>
+<h4>函数定义式与函数表达式</h4>
+<div class="highlight"><pre><code class="javascript"><span class="nx">alert</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">eve</span><span class="p">);</span> <span class="c">//结果:function</span>
+<span class="nx">alert</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">walle</span><span class="p">);</span> <span class="c">//结果:undefined</span>
+<span class="kd">function</span> <span class="nx">eve</span><span class="p">()</span> <span class="p">{</span> <span class="c">//函数定义式</span>
+  <span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;I am Laruence&#39;</span><span class="p">);</span>
+<span class="p">};</span>
+<span class="kd">var</span> <span class="nx">walle</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="c">//函数表达式</span>
+<span class="p">}</span>
+<span class="nx">alert</span><span class="p">(</span><span class="k">typeof</span> <span class="nx">walle</span><span class="p">);</span> <span class="c">//结果:function</span>
+</code></pre>
+</div>
+<p>对于函数定义式，会将函数定义提前，而对于函数表达式，只有在执行过程中才会计算</p>
+<h4>作用域</h4>
+<p>对于下面的demo</p>
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;laruence&#39;</span><span class="o">;</span>
+<span class="kd">function</span> <span class="nx">echo</span><span class="p">()</span> <span class="p">{</span>
+     <span class="nx">alert</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+     <span class="kd">var</span> <span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;eve&#39;</span><span class="o">;</span>
+     <span class="nx">alert</span><span class="p">(</span><span class="nx">name</span><span class="p">);</span>
+     <span class="nx">alert</span><span class="p">(</span><span class="nx">age</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="nx">echo</span><span class="p">();</span>
+</code></pre>
+</div>
+<p>输出结果为</p>
+<div class="highlight"><pre><code class="javascript"><span class="kc">undefined</span>
+<span class="nx">eve</span>
+<span class="p">[</span><span class="nx">ReferenceError</span><span class="p">]</span>
+</code></pre>
+</div>
+<p>原因是js在执行函数之前，会有一个预编译的过程，这个过程中会把局部变量提取出来，放到scope chain中，value都为undefined(不包括传递过来的参数)，所以在执行echo函数时，name的值在设置为&quot;eve&quot;前，为undefined</p>
+<p>参考：</p>
+<ul>
+	<li><a href="http://ejohn.org/blog/simple-class-instantiation/">simple class instantiation/</a></li>
+	<li><a href="http://stackoverflow.com/q/61088/94962">hidden features of javascript</a></li>
+	<li><a href="http://mckoss.com/jscript/object.htm">Object Oriented Programming in JavaScript</a></li>
+	<li><a href="http://yuiblog.com/blog/2007/06/12/module-pattern/">module pattern</a></li>
+	<li><a href="http://www.laruence.com/2009/05/28/863.html">javascript的作用域原理</a></li>
+</ul>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>软件构建设计 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/reading/2010/11/20/software-design.html&via=lzyy&text=软件构建设计"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>软件构建设计</h2>
+				<div class="cnt">
+					<p>p(date) 2010-11-20</p>
+<p>这是《代码大全2》的软件设计篇章，花了两天时间啃下来的，不得不感慨讲得很细致很到位。</p>
+<h3>Key Design Concepts</h3>
+<p>Managing complexity is the most important technical topic in software development.</p>
+<p>The goal of all software-design techniques is to break acomplicated problem into simple pieces. The more independent the subsystems are, the more you make it safe to focus on one bit of complexity at a time.</p>
+<h4>design characteristics</h4>
+<ul>
+	<li>Minimal complexity<br />
+	* Avoid making &#8220;clever&#8221; designs. clever designs are usually hard to understand. Instead make &#8220;simple&#8221; and &#8220;easy-to-understand&#8221; designs.</li>
+	<li>Ease of maintenance</li>
+	<li>Loose coupling</li>
+	<li>Extensibility</li>
+	<li>Reusability</li>
+	<li>High fan-in<br />
+	* having a high number of classes that use a given class. High fan-in implies that a system has been designed to make good use of utility classes at the lower levels in the system.</li>
+	<li>Low-to-medium fan-outside<br />
+	* having a given class use a low-to-medium number of other classes (&lt;7)</li>
+	<li>Portability</li>
+	<li>Leanness<br />
+	* designing the system so that it has no extra parts. a book is finished not when nothing more can be added but when nothing more can be taken away.</li>
+	<li>Stratification <br />
+	* trying to keep the levels of decomposition stratified so that you can view the system at any single level and get a consistent view.</li>
+	<li>Standard techniques</li>
+</ul>
+<h4>The steps in designing with objects</h4>
+<ul>
+	<li>Identify the objects and their attributes (methods and data)</li>
+	<li>Determine what can be done to each object</li>
+	<li>Determine what each object is allowed to do to other objects</li>
+	<li>Determine the parts of each object that will be visible to other objects-which parts will be public and which will be private.</li>
+	<li>Define each object&#8217;s public interface</li>
+</ul>
+<h4>Form Consistent Abstractions</h4>
+<p>Abstraction is the ability to engage with a concept while safely ignoring some of its details &#8211; handling different details at different levels.</p>
+<p>A good class interface is an abstraction that allows you to focus on the interface without needing to worry about the internal workings of the class.</p>
+<h3>Design Building Blocks: Heuristics</h3>
+<h4>Encapsulate Implementation Details</h4>
+<p>Encapsulate picks up where abstraction leaves off. you aren&#8217;t allowed to look at an object at any level of detail.</p>
+<h4>Inherit &#8211; When Inheritance Simplifies the Design</h4>
+<p>Inheritance simplifies programming because you write a general routine to handle anything that depends on a door&#8217;s general properties and then write specific routines to handle specific operations on specific kinds of doors.</p>
+<h4>Hide Secrets (Information Hiding)</h4>
+<p>Information hiding is part of the foundation of both structured design and object-oriented design. In structured design, the notion of &#8220;black boxes&#8221; comes from information hiding. In object-oriented design, it gives rise to the concepts of encapsulation and modularity and it is associated with the concept of abstraction.</p>
+<p>One key task in designing a class is deciding which features should be known outside the class and which should remain secret.</p>
+<h4>Identify Areas Likey to Change</h4>
+<p>Accommodating changes is one of the most chanllenging aspects of good program design. The goal is to isolate unstable areas so that the effect of a change will be limited to one routine, class, or package.</p>
+<p>areas that are likely to change:</p>
+<ul>
+	<li>Business rules</li>
+	<li>Hardware dependencies</li>
+	<li>Input and output</li>
+	<li>Nonstandard language features</li>
+</ul>
+<h4>Keep Coupling Loose</h4>
+<p>Coupling describes how tightly a class or routing is related to other classes or routines. The goal is to create classes and routines with small, direct, visible and flexible relations to other classes and routines.</p>
+<p>Classes and routines are first and foremost intellectual tools for reducing complexity. If they&#8217;re not making your job simpler, they&#8217;re not doing thier jobs.</p>
+<h4>Look for Common Design Patterns</h4>
+<p>Popular Design Patterns</p>
+<ul>
+	<li>Abstract Factory</li>
+	<li>Adapter</li>
+	<li>Bridge</li>
+	<li>Composite</li>
+	<li>Decorator</li>
+	<li>Facade</li>
+	<li>Factory Method</li>
+	<li>Iterator</li>
+	<li>Observer</li>
+	<li>Singleton</li>
+	<li>Strategy</li>
+	<li>Template Method</li>
+</ul>
+<h3>Design Practices</h3>
+<h4>Iterate</h4>
+<p>Design is an iterative process. You don&#8217;t usually go from point A only to point B; you go from point A to point B and back to point A.</p>
+<h4>Divide and Conquer</h4>
+<p>no one&#8217;s skill is big enough to contain all the details of a complex program, and that applies just as well to design. Divide the program into different areas of concern, and then tackle each of those area individually.</p>
+<h4>Top-Down and Bottom-Up Design Approaches</h4>
+<p>Top-down design begins at a high level of abstraction. You define base classes or other nonspecific design elements. As you develop the design, you increase the level of detail, identifying derived classes, collaborating classes, and other detailed design elements.</p>
+<p>Bottom-up design starts with specifics and works toward genealities. It typically begins by identifying concrete objects and then generalizes aggregations of objects and base classes from those specifics.</p>
+<h4>Experimental Prototyping</h4>
+<h4>Collaborative Design</h4>
+<h4>Capturing Your Design Work</h4>
+<ul>
+	<li>Insert design documentation into the code itself</li>
+	<li>Capture design discussions and decisions on a wiki</li>
+	<li>Write e-mail summaries</li>
+	<li>Use a digital camera</li>
+	<li>Save design flip charts</li>
+	<li>Use <acronym title="Class, Responsibility, Collaborator"><span class="caps">CRC</span></acronym> cards</li>
+	<li>Create <span class="caps">UML</span> diagrams at appropriate levels of detail</li>
+</ul>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

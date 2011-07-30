@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>git多人协作开发流程(以blog为例) - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/02/25/git-workflow-with-blog-demo.html&via=lzyy&text=git多人协作开发流程(以blog为例)"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>git多人协作开发流程(以blog为例)</h2>
+				<div class="cnt">
+					<p>时间仓促，能力有限，错误难免(代码没有经过实际验证，所以可能会有问题)，欢迎指正 :)</p>
+<p>这个开发流程就是基于<a href="http://nvie.com/posts/a-successful-git-branching-model/">a successful git model</a>这篇文章而来的，如果对英文不感冒的话，我这有<a href="http://blog.leezhong.com/translate/2010/10/30/a-successful-git-branch.html">翻译版</a></p>
+<p><b>项目背景：</b></p>
+</notextile>
+
+**项目分工：**
+
+<notextile><h3>建立服务端仓库</h3>
+<p>git虽然是分布式版本管理工具，但为了方便管理，我们需要建立一个中心仓库，先在服务端建立两条分支</p>
+</notextile>
+
+master保存稳定版(production ready)，开发人员平时的代码都提交到develop分支上
+
+h3. 开发者的Git分支
+
+h4. 张三的Git分支
+
+因为张三和李四同时开发文章系统，所以就有了下面的分支
+
+<notextile><h4>李四的Git分支</h4>
+<p>跟张三类似，不过article server变成了张三的</p>
+</notextile>
+
+h4. 王五的Git分支
+
+因为只有王五一个人开发评论系统，所以只要一条远程分支就行了
+
+<notextile><h3>开发过程</h3>
+<h4>张三和李四</h4>
+<p>假设张三负责文章的管理，及前端显示。李四负责文章的分类和标签系统。</p>
+<p>张三开发完一部分后(n次本地commit)，提交到本地的git server(也就是李四添加的http://zhangsan-server/zhangsan.git)。</p>
+<p>李四开发完一部分后，因为要与张三开发的部分合并，所以需要执行一下rebase或merge</p>
+</notextile>
+
+这时张三又开发完了一部分，他也会走跟李四一样的流程，rebase & push (如果有冲突，解决之)。
+
+假设由张三统一负责将每日的开发进度提交到remote develop分支上，张三在执行了上面所说的流程后，提交到服务端的develop分支。但这时很可能王五已经把他写的代码提交了，所以要先执行一下rebase
+
+<notextile><p>这样张三和李四的代码就都提交到了服务端的develop分支上。王五那边的流程也一样，只是少了本地同步的过程。</p>
+<h3>开发完毕，进入测试阶段</h3>
+<p>经过几天的开发，各个功能都已基本完成，下面就要进入测试阶段。具体做法是在服务端新添加一个分支，命名为release，所以这时服务端就有3个分支了</p>
+</notextile>
+
+三位同学都在本地新建一个branch，对应服务端的release分支
+
+<notextile><p>分别进行测试，如果发现问题，则执行pull &amp; push</p>
+</notextile>
+
+经过几天的测试后，发现没什么问题了，就可以发布稳定版了，假设为0.1
+
+<notextile><p>同时别忘了把release分支上的代码与develop分支合并，保证develop分支上不会有遗留的bug。(没有找到如何直接merge两个服务端branch的方法)</p>
+</notextile>
+
+接下来就可以继续在develop分支上进行开发了。
+
+h3. 添加新特性
+
+博客系统需要添加archives功能，这个功能的开发就交给了新来的赵六。此时，在服务端新开一个分支，命名为feature，这时服务端的分支就变成了这样
+
+<notextile><p>赵六也在本地建立一个archive分支，每天提交到服务端的feature/archive，赵六的Git分支是这样的(不相关的服务端Git已省去)</p>
+</notextile>
+
+等到这个feature开发完了，与服务端的develop分支执行一下rebase，然后再提交到服务端的develop，这样博客的archive功能就有了
+
+<notextile><p>接下来的流程跟上面的一样：开发完毕后，新建release分支，在那上面进行bug修复，修复完毕后，merge到服务端的master和develop</p>
+<h3>紧急修复漏洞</h3>
+<p>博客出现了一个xss漏洞，需要尽快修复，这时新建一个hotfix分支(现在本地建，然后提交到服务端)，然后对漏洞进行修复，修复完后，提交到服务端的master和develop</p>
+<p></notextile></p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

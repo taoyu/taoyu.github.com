@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>缩进输出目录结构并计算文件/文件夹大小 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/06/10/cacl-tree.html&via=lzyy&text=缩进输出目录结构并计算文件/文件夹大小"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>缩进输出目录结构并计算文件/文件夹大小</h2>
+				<div class="cnt">
+					<p>如果把这个命题分开来实现会方便点，比如缩进输出目录结构可以通过先序遍历实现，计算文件夹大小可以通过后续遍历实现，但结合到一块就稍微有点麻烦了。比如我们要得到如下的输出</p>
+<div class="highlight"><pre><code class="php"><span class="x">LICENSE (1.040K)</span>
+<span class="x">README.md (0.951K)</span>
+<span class="x">UPDATE.ja.md (23.951K)</span>
+<span class="x">UPDATE.md (19.390K)</span>
+<span class="x">autoload.php.dist (0.875K)</span>
+<span class="x">check_cs (3.312K)</span>
+<span class="x">phpunit.xml.dist (1.160K)</span>
+<span class="x">src (8302.127K) // 文件夹</span>
+<span class="x">    Symfony (8302.127K) // 文件夹</span>
+<span class="x">        Bridge (84.567K) // 文件夹</span>
+<span class="x">...</span>
+</code></pre>
+</div>
+<p>我首先想到的方法是把文件/文件夹的计算和输出分开来实现，不过这样效率不高，因为有些文件会被多次使用filesize方法。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">function</span> <span class="nf">get_size</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="nv">$filesize</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="p">))</span>
+	<span class="p">{</span>
+		<span class="nv">$filesize</span> <span class="o">=</span> <span class="nb">filesize</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">else</span>
+	<span class="p">{</span>
+		<span class="nv">$filesize</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+		<span class="k">foreach</span><span class="p">(</span><span class="nb">glob</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="o">.</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$file</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="nv">$filesize</span> <span class="o">+=</span> <span class="nx">get_size</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="nv">$filesize</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">function</span> <span class="nf">tree</span><span class="p">(</span><span class="nv">$prefix</span><span class="p">,</span> <span class="nv">$file_or_dir</span><span class="p">,</span> <span class="nv">$length</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="nv">$filename</span> <span class="o">=</span> <span class="nv">$prefix</span><span class="o">.</span><span class="s1">&#39;/&#39;</span><span class="o">.</span><span class="nv">$file_or_dir</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$filename</span><span class="p">))</span>
+	<span class="p">{</span>
+		<span class="c">// 每次输出都计算一次，如果是文件夹的话，文件夹下的文件会被多次计算，浪费也就在此</span>
+		<span class="nx">pad_output</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="p">,</span> <span class="nx">get_size</span><span class="p">(</span><span class="nv">$filename</span><span class="p">),</span> <span class="nv">$length</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">else</span>
+	<span class="p">{</span>
+		<span class="k">if</span><span class="p">(</span><span class="nv">$handle</span> <span class="o">=</span> <span class="nb">opendir</span><span class="p">(</span><span class="nv">$filename</span><span class="p">))</span>
+		<span class="p">{</span>
+			<span class="nx">pad_output</span><span class="p">(</span><span class="nv">$file_or_dir</span><span class="p">,</span> <span class="nx">get_size</span><span class="p">(</span><span class="nv">$filename</span><span class="p">),</span> <span class="nv">$length</span><span class="p">,</span> <span class="m">1</span><span class="p">);</span>
+			<span class="k">while</span><span class="p">((</span><span class="nv">$file</span> <span class="o">=</span> <span class="nb">readdir</span><span class="p">(</span><span class="nv">$handle</span><span class="p">))</span> <span class="o">!==</span> <span class="k">false</span><span class="p">)</span>
+			<span class="p">{</span>
+				<span class="k">if</span><span class="p">(</span><span class="nv">$file</span> <span class="o">!==</span> <span class="s1">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="nv">$file</span> <span class="o">!==</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span>
+				<span class="p">{</span>
+					<span class="nx">tree</span><span class="p">(</span><span class="nv">$filename</span><span class="p">,</span> <span class="nv">$file</span><span class="p">,</span> <span class="m">1</span> <span class="o">+</span> <span class="nv">$length</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这样，假如a/b/c.txt这个文件，在获取c.txt文件大小时会计算c.txt一次，获取b文件夹大小时还会计算一次，获取a文件夹时仍然会计算一次。也就是说文件的重复计算次数跟目录深度成正比。</p>
+<p>后来又想了一个方法可以避免重复计算，且占用不多的内存，自认为效率还算高。</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">function</span> <span class="nf">cacl</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span> <span class="o">&amp;</span><span class="nv">$data</span><span class="p">,</span> <span class="nv">$length</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">global</span> <span class="nv">$padding</span><span class="p">;</span>
+
+	<span class="nv">$f_pad</span> <span class="o">=</span> <span class="nv">$file</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">((</span><span class="nv">$pos</span> <span class="o">=</span> <span class="nb">strrpos</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">))</span> <span class="o">!==</span> <span class="k">false</span><span class="p">)</span>
+	<span class="p">{</span>
+		<span class="nv">$f_pad</span> <span class="o">=</span> <span class="nb">substr</span><span class="p">(</span><span class="nv">$file</span><span class="p">,</span> <span class="nv">$pos</span><span class="o">+</span><span class="m">1</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="nv">$f_pad</span> <span class="o">=</span> <span class="nb">str_repeat</span><span class="p">(</span><span class="nv">$padding</span><span class="p">,</span> <span class="nv">$length</span><span class="p">)</span><span class="o">.</span><span class="nv">$f_pad</span><span class="p">;</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="nb">is_file</span><span class="p">(</span><span class="nv">$file</span><span class="p">))</span>
+	<span class="p">{</span>
+		<span class="nv">$size</span> <span class="o">=</span> <span class="nb">filesize</span><span class="p">(</span><span class="nv">$file</span><span class="p">);</span>
+		<span class="nv">$data</span><span class="p">[</span><span class="nv">$f_pad</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$size</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">else</span>
+	<span class="p">{</span>
+		<span class="nv">$data</span><span class="p">[</span><span class="nv">$f_pad</span><span class="p">]</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+		<span class="nv">$size</span> <span class="o">=</span> <span class="m">0</span><span class="p">;</span>
+		<span class="k">foreach</span><span class="p">(</span><span class="nb">glob</span><span class="p">(</span><span class="nv">$file</span><span class="o">.</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$filename</span><span class="p">)</span>
+		<span class="p">{</span>
+			<span class="nv">$size</span> <span class="o">+=</span> <span class="nx">cacl</span><span class="p">(</span><span class="nv">$filename</span><span class="p">,</span> <span class="nv">$data</span><span class="p">,</span> <span class="m">1</span> <span class="o">+</span> <span class="nv">$length</span><span class="p">);</span>
+		<span class="p">}</span>
+		<span class="nv">$data</span><span class="p">[</span><span class="nv">$f_pad</span><span class="p">]</span> <span class="o">=</span> <span class="nv">$size</span><span class="o">.</span><span class="s1">&#39;_&#39;</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nv">$size</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>这个只用了一个函数，更短，更快。引用数组负责数据的存储，递归返回值负责文件的大小，为了减少内存的使用，在文件夹的size后面加了&quot;_&quot;来表示这是一个文件夹，输出时去掉&quot;_&quot;就行了。</p>
+<p>如果你有更好的想法，欢迎交流 :)</p>
+<p>github地址：<a href="https://github.com/lzyy/cacl_tree">https://github.com/lzyy/cacl_tree</a></p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

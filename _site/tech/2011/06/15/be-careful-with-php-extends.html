@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>小心PHP的类定义顺序与继承的问题 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/tech/2011/06/15/be-careful-with-php-extends.html&via=lzyy&text=小心PHP的类定义顺序与继承的问题"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>小心PHP的类定义顺序与继承的问题</h2>
+				<div class="cnt">
+					<p>以下代码的运行环境均为PHP5.3.4</p>
+<p>先来看一段代码</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">A</span> <span class="k">extends</span> <span class="nx">B</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">B</span> <span class="p">{}</span>
+</code></pre>
+</div>
+<p>代码很简单，也可以正常运行。看起来PHP的类定义与顺序无关。</p>
+<p>再来看下面一段代码</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">A</span> <span class="k">extends</span> <span class="nx">B</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">B</span> <span class="k">extends</span> <span class="nx">C</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">C</span> <span class="p">{}</span>
+</code></pre>
+</div>
+<p>猜猜结果会怎样？有点出乎意料，代码报Fatal Error。</p>
+<p>这就奇怪了，上一段代码也是在后面声明的类B，正常。多了一层继承关系后，就报错了，错误信息是&quot;Fatal Error: class &#8216;B&#8217; not found &quot;。 这又不能理解了，为什么会说找不到类B呢。</p>
+<p>再来尝试一下新的组合</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="k">class</span> <span class="nc">A</span> <span class="k">extends</span> <span class="nx">B</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">C</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">B</span> <span class="k">extends</span> <span class="nx">C</span> <span class="p">{}</span>
+</code></pre>
+</div>
+<p>好了，又正常了。</p>
+<p>再来尝试一下namespace</p>
+<div class="highlight"><pre><code class="php"><span class="cp">&lt;?php</span>
+<span class="nx">namespace</span> <span class="nx">A</span> <span class="p">{</span>
+	<span class="k">class</span> <span class="nc">A</span> <span class="k">extends</span> <span class="err">\</span><span class="nx">B</span><span class="err">\</span><span class="nx">B</span> <span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="nx">namespace</span> <span class="nx">B</span> <span class="p">{</span>
+	<span class="k">class</span> <span class="nc">B</span> <span class="k">extends</span> <span class="err">\</span><span class="nx">C</span><span class="err">\</span><span class="nx">C</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="nx">namespace</span> <span class="nx">C</span> <span class="p">{</span>
+	<span class="k">class</span> <span class="nc">C</span> <span class="p">{}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+<p>结果跟不是用ns是一样的。</p>
+<p>这种时候，只能看看官方是怎么说的了 <a href="http://php.net/manual/en/keyword.extends.php">http://php.net/manual/en/keyword.extends.php</a></p>
+<blockquote>
+<p>Classes must be defined before they are used! If you want the class Named_Cart to extend the class Cart, you will have to define the class Cart first. If you want to create another class called Yellow_named_cart based on the class Named_Cart you have to define Named_Cart first. To make it short: the order in which the classes are defined is important.</p>
+</blockquote>
+<p>说得很明确，类必须先定义后使用，哪怕是在一个文件里。但这又无法解释第一段代码为什么可以正常运行。所以基本可以认为这是一个php的bug。</p>
+<p>好在有autoload机制，这种情况完全可以避免。不过对那些想通过把许多类文件合并成一个来提高PHP运行效率的童鞋们来说，这就有点麻烦咯。</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+

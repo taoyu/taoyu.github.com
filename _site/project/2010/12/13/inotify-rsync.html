@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<title>inotify-rsync实时同步脚本 - 无网不剩</title>
+		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
+		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
+		<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-1281124-20']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+		</script>
+	</head>
+
+	<body>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
+		<div id="wrapper">
+			<div id="content">
+				<a target="_blank" style="float:right;margin-top:15px" href="http://twitter.com/share?url=http://blog.leezhong.com/project/2010/12/13/inotify-rsync.html&via=lzyy&text=inotify-rsync实时同步脚本"><span class="balloon">retweet</span><img src="/image/tweet.png" /></a>
+				<h2>inotify-rsync实时同步脚本</h2>
+				<div class="cnt">
+					<p class="date">2010-12-13</p>
+<h3>为什么要写这个脚本</h3>
+<p>rsync是linux下一款非常强大的同步工具，采用差异同步的方法，只上传文件/文件夹的不同部分，同时可以对上传部分先进行压缩，所以rsync的传输效率是很高的。</p>
+<p>但rsync也有缺点，最大的问题就是每次执行rsync命令都会遍历目标目录，当文件不多时，这没什么问题，一旦文件数到了一定规模，那么每次遍历都会消耗很多资源。但事实上改动的文件并不多，如果可以只sync改动的文件，问题就迎刃而解了。</p>
+<p>这时就得请出本文的另一个主角：inotify。inotify是一种文件系统的变化通知机制，如文件增加、删除等事件可以立刻让用户态得知。要使用inotify，linux的内核版本不能低于2.6.13</p>
+<div class="highlight"><pre><code class="bash">~<span class="nv">$ </span>uname -a
+Linux lzyy-laptop 2.6.32-26-generic <span class="c">#48-Ubuntu SMP Wed Nov 24 09:00:03 UTC 2010 i686 GNU/Linux</span>
+</code></pre>
+</div>
+<p>但inotify只提供了C语言接口，不方便调用，所以我们需要先安装<a href="https://github.com/rvoicilas/inotify-tools/wiki/">inotify-tools</a>，大多数的linux发行版应该都可以直接通过apt-get或yum来安装。</p>
+<h3>脚本说明与使用</h3>
+<p>其实<a href="http://blog.chinaunix.net/u/32831/showart_1289758.html">前人</a>已经做了类似的工作，不过有些地方尚未完善(如删除文件的同步)，于是我改进和简化了一下。</p>
+<h4>服务端</h4>
+<p>以下是服务端脚本，运行这段脚本后，这个机器上对应的文件夹将会同步到其他机器上</p>
+<div class="highlight"><pre><code class="bash"><span class="c">#!/bin/bash</span>
+
+<span class="c">###########################</span>
+<span class="c"># 在这里配置本地文件夹,目标host,目标的rsync_module。rsync_module在同步机器的/etc/rsyncd.conf文件中配置</span>
+<span class="c"># 逗号前后不要有空格</span>
+sync<span class="o">[</span>0<span class="o">]=</span><span class="s1">&#39;/path/to/local/dir,1.2.3.4,test&#39;</span> <span class="c"># localdir,host,rsync_module</span>
+<span class="c"># sync[1]=&#39;/path/to/local/dir,host,rsync_module&#39;</span>
+<span class="c">###########################</span>
+
+<span class="k">for </span>item in <span class="k">${</span><span class="nv">sync</span><span class="p">[@]</span><span class="k">}</span>; <span class="k">do</span>
+
+<span class="nv">dir</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$item</span> | awk -F<span class="s2">&quot;,&quot;</span> <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+<span class="nv">host</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$item</span> | awk -F<span class="s2">&quot;,&quot;</span> <span class="s1">&#39;{print $2}&#39;</span><span class="sb">`</span>
+<span class="nv">module</span><span class="o">=</span><span class="sb">`</span><span class="nb">echo</span> <span class="nv">$item</span> | awk -F<span class="s2">&quot;,&quot;</span> <span class="s1">&#39;{print $3}&#39;</span><span class="sb">`</span>
+
+inotifywait -mrq --timefmt <span class="s1">&#39;%d/%m/%y %H:%M&#39;</span> --format  <span class="s1">&#39;%T %w%f %e&#39;</span> <span class="se">\</span>
+ --event CLOSE_WRITE,create,move,delete  <span class="nv">$dir</span> | <span class="k">while </span><span class="nb">read  </span>date <span class="nb">time </span>file event
+	<span class="k">do</span>
+<span class="k">		</span><span class="nb">echo</span> <span class="nv">$event</span><span class="s1">&#39;-&#39;</span><span class="nv">$file</span>
+		<span class="k">case</span> <span class="nv">$event</span> in
+			MODIFY|CREATE|MOVE|MODIFY,ISDIR|CREATE,ISDIR|MODIFY,ISDIR<span class="o">)</span>
+				<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;${file: -4}&quot;</span> !<span class="o">=</span> <span class="s1">&#39;4913&#39;</span> <span class="o">]</span>  <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="s2">&quot;${file: -1}&quot;</span> !<span class="o">=</span> <span class="s1">&#39;~&#39;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">					</span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;rsync -avz --exclude=&#39;*&#39; --include=$file $dir $host::$module&quot;</span>
+					<span class="c"># echo $cmd</span>
+					<span class="nv">$cmd</span>
+				<span class="k">fi</span>
+				;;
+
+			MOVED_FROM|MOVED_FROM,ISDIR|DELETE|DELETE,ISDIR<span class="o">)</span>
+				<span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;${file: -4}&quot;</span> !<span class="o">=</span> <span class="s1">&#39;4913&#39;</span> <span class="o">]</span>  <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="s2">&quot;${file: -1}&quot;</span> !<span class="o">=</span> <span class="s1">&#39;~&#39;</span> <span class="o">]</span>; <span class="k">then</span>
+<span class="k">					</span><span class="nv">cmd</span><span class="o">=</span><span class="s2">&quot;rsync -avz --delete-excluded --exclude=&quot;</span><span class="nv">$file</span><span class="s2">&quot; $dir $host::$module&quot;</span>
+					<span class="c"># echo $cmd</span>
+					<span class="nv">$cmd</span>
+				<span class="k">fi</span>
+				;;
+		<span class="k">esac</span>
+<span class="k">	done</span> &amp;
+<span class="k">done</span>
+</code></pre>
+</div>
+<p>运行脚本</p>
+</notextile>
+
+可以把这个脚本设置为开机启动，这样就可以自动同步了。
+
+h4. 同步端
+
+同步机器上要做两件事
+
+**1. 设置/etc/rsyncd.conf文件**
+
+<notextile><div class="highlight"><pre><code class="bash"><span class="c"># vim /etc/rsyncd.conf</span>
+
+<span class="nv">uid</span><span class="o">=</span>root
+<span class="nv">gid</span><span class="o">=</span>root
+<span class="c"># 这个test就是上面脚本中用到的rsync_module名</span>
+<span class="c"># path指定同步过来的文件存放的路径</span>
+<span class="c"># 如果只允许部分ip的机器进行同步的话，设置allow为 192.168.1.1/100 类似的格式</span>
+<span class="o">[</span><span class="nb">test</span><span class="o">]</span>
+<span class="nv">path</span><span class="o">=</span>/path/to/your/dir
+allow *
+</code></pre>
+</div>
+<p><b>2. 启动rsync daemon</b></p>
+<p></notextile></p>
+<h3>其他</h3>
+<p>金山的周洋同学用C++写了个<a href="http://hi.baidu.com/johntech/blog/item/f8bdaec8fb3c268dc81768c0.html">Sersync</a>，也是利用的inotify+rsync来实现实时同步，有兴趣的可以关注一下</p>
+					<br />
+					--EOF--
+					<p>若无特别说明，本站文章均为原创，转载请保留链接，谢谢</p>
+				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
+				<div id="footer">
+					<div id="feed">
+						<div class="badget" id="github">
+							<a href="http://github.com/lzyy">
+							<span class="service">github</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="twt">
+							<a href="http://twitter.com/lzyy">
+							<span class="service">twitter</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+						<div class="badget" id="feedburner">
+							<a href="http://feeds.feedburner.com/lzyy">
+							<span class="service">rss</span>
+							<span class="info"> </span>
+							</a>
+						</div>
+					</div>
+					<span style="color:#bbb;font-size:12px">make the world a little better and eaiser</span>
+					<p style="clear:both"></p>
+				</div>
+
+				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+	jQuery.cookie = function (key, value, options) {
+    
+    // key and at least value given, set cookie...
+    if (arguments.length > 1 && String(value) !== "[object Object]") {
+        options = jQuery.extend({}, options);
+
+        if (value === null || value === undefined) {
+            options.expires = -1;
+        }
+
+        if (typeof options.expires === 'number') {
+            var days = options.expires, t = options.expires = new Date();
+            t.setDate(t.getDate() + days);
+        }
+        
+        value = String(value);
+        
+        return (document.cookie = [
+            encodeURIComponent(key), '=',
+            options.raw ? value : encodeURIComponent(value),
+            options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+            options.path ? '; path=' + options.path : '',
+            options.domain ? '; domain=' + options.domain : '',
+            options.secure ? '; secure' : ''
+        ].join(''));
+    }
+
+    // key and possibly options given, get cookie...
+    options = value || {};
+    var result, decode = options.raw ? function (s) { return s; } : decodeURIComponent;
+    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? decode(result[1]) : null;
+};
+
+if(!$.cookie('badget-twt'))
+{
+	url = 'http://199.19.225.142/proxy/twt.php';
+	$.getJSON(url+"?callback=?", function(data){
+		f_count = data['followers_count'];
+		$('#twt').find('.info').text(f_count);
+		$.cookie('badget-twt', f_count, {expires: 7} );
+	});
+}
+else
+{
+	$('#twt').find('.info').text($.cookie('badget-twt'));
+}
+
+
+
+if(!$.cookie('badget-github'))
+{
+	url = 'http://leezhong.com/util/proxy/github.php';
+	$.getJSON(url+"?callback=?", function(data){
+		var text = data['user']['public_repo_count'] + ' / ' + data['user']['followers_count'];
+		$('#github').find('.info').text(text);
+		$.cookie('badget-github', text, {expires: 7} );
+	});
+}
+else
+{
+	$('#github').find('.info').text($.cookie('badget-github'));
+}
+
+if(!$.cookie('badget-feedburner'))
+{
+	url = 'http://leezhong.com/util/proxy/feedburner.php';
+	$.getJSON(url+"?callback=?", function(data){
+		$('#feedburner').find('.info').text(data['count']);
+		$.cookie('badget-feedburner', data['count'], {expires: 7} );
+	});
+}
+else
+{
+	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
+}
+</script>
+
+	</body>
+</html>
+
