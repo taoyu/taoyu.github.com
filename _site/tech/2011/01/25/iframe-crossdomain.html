@@ -34,21 +34,7 @@
 	<li>当你改变url的hashtag(#后面的东东)时，页面不会刷新</li>
 </ol>
 <p>举例来说，有这么个页面</p>
-<div class="highlight"><pre><code class="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="nt">&lt;html&gt;</span>
-	<span class="nt">&lt;head&gt;</span>
-		<span class="nt">&lt;meta</span> <span class="na">http-equiv=</span><span class="s">&quot;content-type&quot;</span> <span class="na">content=</span><span class="s">&quot;text/html;charset=utf-8&quot;</span> <span class="nt">/&gt;</span>
-		<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-	<span class="nt">&lt;/head&gt;</span>
-
-	<span class="nt">&lt;body&gt;</span>
-		<span class="c">&lt;!-- 不同域的iframe页面 --&gt;</span>
-		<span class="nt">&lt;iframe</span> <span class="na">src=</span><span class="s">&quot;http://www.domain.com/foo&quot;</span> <span class="na">name=</span><span class="s">&quot;foo&quot;</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span><span class="nt">&gt;&lt;/iframe&gt;</span>
-		<span class="nt">&lt;iframe</span> <span class="na">src=</span><span class="s">&quot;http://www.domain.com/bar&quot;</span> <span class="na">name=</span><span class="s">&quot;bar&quot;</span> <span class="na">id=</span><span class="s">&quot;bar&quot;</span><span class="nt">&gt;&lt;/iframe&gt;</span>
-	<span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
-</code></pre>
-</div>
+<p>Liquid error:</p>
 <p><strong>可以在当前页面设置proxy iframe的location(原则1,3,4)</strong></p>
 <div class="highlight"><pre><code class="javascript"><span class="c">// 添加了一个hashtag，这样该iframe就不会刷新</span>
 <span class="nx">$</span><span class="p">(</span><span class="s1">&#39;#foo&#39;</span><span class="p">).</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="o">,</span> <span class="s1">&#39;http://www.domain.com/foo#tag&#39;</span><span class="p">);</span>
