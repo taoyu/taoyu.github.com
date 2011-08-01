@@ -4,3 +4,6 @@ title: hello world
 category: essay
 ---
 this is my hello world
+
+贪婪 vs 不贪婪
+http://xukaizijian.blog.163.com/blog/static/17043311920101082026859/
