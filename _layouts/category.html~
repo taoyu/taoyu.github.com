@@ -22,7 +22,7 @@
 								{% endfor %}
 							</ul>
 						</li>
-						<li><a href="/quotes.html">QUOTES</a></li>
+						<li><a href="/qoutes.html">QUOTES</a></li>
 						<li><a href="/about.html">ABOUT</a></li>
 						<li><a href="/links.html">LINKS</a></li>
 						<li><a href="/contact.html">CONTACT</a></li>
@@ -30,6 +30,7 @@
 				</div>
 				
 				<div id="main">
+					<h1>CATEGORY » {{ page.title }}</h1>
 					{{ content }}
 				</div>
 

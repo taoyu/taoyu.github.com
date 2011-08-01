@@ -2,36 +2,35 @@
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<title>stay hungry, stay foolish</title>
+		<title>{{ page.title }} - 无网不剩</title>
 		<link rel="stylesheet" type="text/css" href="/css/style.css" />
 		<link rel="stylesheet" type="text/css" href="/css/syntax.css" />
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="http://feeds.feedburner.com/lzyy">
 	</head>
 
 	<body>
-		<div id="logo"><h1><a href="/">stay hungry, stay foolish</a></h1></div>
+		<div id="logo"><h1><a href="/">无网不剩</a></h1></div>
 		<div id="wrapper">
-			<div id="content" class="index">
-				<div id="sidebar">
-					<ul>
-						<li>
-							<a href="#">ARTICLES</a>
-							<ul>
-								{% for category in site.categories %}
-								<li><a href="/{{ category[0]  }}.html"> {{ category[0]  }}</a></li>
-								{% endfor %}
-							</ul>
-						</li>
-						<li><a href="/quotes.html">QUOTES</a></li>
-						<li><a href="/about.html">ABOUT</a></li>
-						<li><a href="/links.html">LINKS</a></li>
-						<li><a href="/contact.html">CONTACT</a></li>
-					</ul>
+			<div id="content">
+				<h2>{{ page.title }}</h2>
+				<div class="cnt">
+					{{ content }}
+					<br />
 				</div>
-				
-				<div id="main">
-				{{ content }}
-				</div>
+				<div id="disqus_thread"></div>
+				<script type="text/javascript">
+				  /**
+				    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+				    */
+				  (function() {
+				   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				   dsq.src = 'http://lzyyblog.disqus.com/embed.js';
+				   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+				  })();
+				</script>
+				<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=lzyyblog">comments powered by Disqus.</a></noscript>
+			</div>
+
 				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
 
 <script type="text/javascript">
@@ -111,7 +110,7 @@ else
 	$('#feedburner').find('.info').text($.cookie('badget-feedburner'));
 }
 </script>
-					
+
 	</body>
 </html>
 
