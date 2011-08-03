@@ -1,7 +1,7 @@
 ---
 layout: post
 title: magicblog-基于Django的博客系统-开发计划
-category: essay
+category: hacking
 ---
 
 很早之前就准备自己写一个博客系统(blog engine)了，肯定很多人问我“为什么要自己写一个啊？不是已经有很多现成的了吗？你无论如何也不可能写的比WordPress好啊？这不是重复制造轮子吗？”

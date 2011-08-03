@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 实习，招聘，面试
-category: essay
+category: thinking
 ---
 
 刚刚考完试，能清闲几天，这几天多写几篇博客，把前一段欠下的帐补上。

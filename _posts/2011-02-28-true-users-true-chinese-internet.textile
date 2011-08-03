@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 真实的用户，真实的中国互联网
-category: essay
+category: web
 ---
 
 先讲一个小故事

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 关于kindle的一个idea
-category: essay
+category: entrepreneur
 ---
 
 自从买了kindle之后，我就开始考虑：能为kindle设计什么服务吗？

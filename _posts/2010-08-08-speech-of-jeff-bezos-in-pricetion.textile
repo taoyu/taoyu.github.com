@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 杰夫·贝佐斯(Jeff Bezos)在普林斯顿(Princeton)毕业典礼上的演讲
-category: essay
+category: reading
 ---
 
 昨天无意间发现了一个很精彩的演讲，它是由亚马逊(Amazon)CEO杰夫·贝佐斯(Jeff Bezos)在普林斯顿(Princeton)大学2010年毕业典礼上所做的演讲。

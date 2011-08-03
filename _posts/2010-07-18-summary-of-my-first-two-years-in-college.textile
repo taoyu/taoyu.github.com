@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 总结一下大学前两年
-category: essay
+category: life
 ---
 
 一转眼大学生活过半了，有必要总结一下了

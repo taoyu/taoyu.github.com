@@ -1,7 +1,7 @@
 ---
 layout: post
 title: hello,台北
-category: essay
+category: life
 ---
 
 这学期来<a href="http://www.ntust.edu.tw">国立台湾科技大学</a>做交换生，经过一番折腾之后总算到了台北

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 我们是否丧失了思考能力
-category: essay
+category: thinking
 ---
 
 人作为一种高等生物的根本特点在于，人有思考能力，正如笛卡尔所说的那样，我思故我在。但在生活中我发现，我们正在逐渐丧失思考能力。

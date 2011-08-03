@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 社会化问答网站
-category: essay
+category: web
 ---
 
 社会化问答网站最近很火，国外有<a href="http://www.quora.com/" target="_blank">quora</a>，国内最近也出现了类似的网站"<a href="http://www.rfanti.com/" target="_blank">啊烦题</a>"，据说过一阵还有一个名为“知乎”的也要上线了。

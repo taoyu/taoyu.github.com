@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 想创业吗，好的点子就在你身边
-category: essay
+category: entrepreneur
 ---
 
 好久不写博客了，为了保证每篇文章的“质量”，没想法时不瞎写也好。今天算是来灵感了，在TechCrunch中文站上看了一篇文章，强烈引发了我的共鸣，这篇文章在<a href="http://www.techcrunchchina.com/5909">这里</a>，英文原文在<a href="http://www.readwriteweb.com/archives/how_instapaper_was_created.php">这里</a>。

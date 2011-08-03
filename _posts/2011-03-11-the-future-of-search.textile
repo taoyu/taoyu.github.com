@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 搜索的未来
-category: essay
+category: web
 ---
 
 我以前写过一篇“<a href="http://www.colorfulcloud.com/post/the-future-of-social-network/">社交网络的未来</a>”，今天准备yy一下搜索的未来。(注:本文给出的很多链接需要特殊方式才可以访问，请自行解决)

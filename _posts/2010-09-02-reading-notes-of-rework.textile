@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 《rework》读书笔记
-category: essay
+category: reading
 ---
 
 37signals是一家很特别的公司，他们有很独特的理念。虽然他们的团队只有16人，但他们的几个产品每年都会带来相当可观的利润。他们反对风险投资，反对扩大规模，反对堆砌功能。如果让我用一个词形容他们的话，那就是maverick，在某种程度上他们与乔布斯有相似之处。David Heinemeier Hansson是37signals的一个主要成员，我写过<a href="../David-Heinemeier-Hansson-speech.html">一篇文章</a>介绍他的两个演讲。除了他们的产品外，他们还有一些byproduct: 一个很著名的博客:<a href="http://37signals.com/svn/">Signal vs Noise</a>，还有2本书:《getting real》《rework》，今天我就要介绍一下《rework》这本书。

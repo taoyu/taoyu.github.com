@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 乔布斯(Steve Jobs)在斯坦福毕业典礼上的演讲
-category: essay
+category: reading
 ---
 
 乔布斯，a maverick，流行教主，苹果CEO，N期时代周刊的封面人物，绝对意义上的传奇人物。

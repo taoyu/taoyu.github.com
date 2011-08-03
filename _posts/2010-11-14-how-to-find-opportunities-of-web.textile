@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 如何发掘互联网的机会
-category: essay
+category: entrepreneur
 ---
 
 互联网到底还有多少机会

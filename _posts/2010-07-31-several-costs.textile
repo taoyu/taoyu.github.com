@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 时间成本，机会成本与沉没成本
-category: essay
+category: thinking
 ---
 
 以前跟一个同学聊天的时候他提到了“沉没成本”这个词，后来在网上深入了解了一下，发现还有“时间成本”和“机会成本”这两个概念。

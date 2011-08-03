@@ -1,7 +1,7 @@
 ---
 layout: post
 title: think different
-category: essay
+category: thinking
 ---
 
 <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="480" height="400" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="data" value="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" /><param name="align" value="middle" /><param name="src" value="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" /><param name="quality" value="high" /><embed type="application/x-shockwave-flash" width="480" height="400" src="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" quality="high" align="middle" data="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf"></embed></object>

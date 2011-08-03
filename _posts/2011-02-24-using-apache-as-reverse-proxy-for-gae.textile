@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 用apache给gae做反向代理
-category: essay
+category: web
 ---
 
 <a href="http://www.writetofuture.com">写给未来的信</a>这个网站是我在大二暑假时候做的，依托于google免费云计算资源google app engine。

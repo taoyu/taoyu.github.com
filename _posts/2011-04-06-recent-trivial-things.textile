@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 最近的一些琐事
-category: essay
+category: life
 ---
 
 好久没更新博客了，最近实在是太忙了。

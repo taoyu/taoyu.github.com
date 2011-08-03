@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Jonathan Rosenberg的演讲“Rules to success”
-category: essay
+category: reading
 ---
 
 前两天在新浪微博里看到<a href="http://t.sina.com.cn/kaifulee">李开复</a>提到了这个演讲，在youtube上搜了一下，的确不错，就下载了下来传到优酷上，以便墙内的朋友们能看到。

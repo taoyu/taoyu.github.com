@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 我做的第一个网站
-category: essay
+category: hacking
 ---
 
 <a href="http://www.writetofuture.com/" target="_blank">www.writetofuture.com</a>是我做的第一个网站，昨天才刚刚对外发布，走过路过的朋友们，欢迎大家去瞧一瞧

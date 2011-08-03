@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 社交网络的未来
-category: essay
+category: web
 ---
 
 facebook是社交网络的终点吗？

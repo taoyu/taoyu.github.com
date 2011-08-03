@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 遇上了钓鱼网站，好可怕
-category: essay
+category: life
 ---
 
 昨晚要订机票，由于我经常在“去哪”上找机票，一直感觉都不错，这次就毫不犹豫的在google中输入了“去哪”二字，得到了如下的搜索结果：

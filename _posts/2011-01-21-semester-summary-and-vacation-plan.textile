@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 学期总结+寒假计划
-category: essay
+category: life
 ---
 
 好久没写博客了，有很多想写的，但一直比较忙，前一段在准备期末考试和各种project，考完试又开始离开台湾前的最后疯狂，昨晚总算回到了沈阳。

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Mark Bao，下一个Mark Zuckerberg? 现在的中国出不了这样的天才
-category: essay
+category: entrepreneur
 ---
 
 Mark Bao今年才17岁，但他已经创办了11个公司和三个机构。他最近的一个项目是几天前的<a href="http://threewords.me/">http://threewords.me/</a>, 这个网站真正能称得上是病毒式传播(viral)，3天内访问量成指数增长，以至于Mark都不找应该如何处理这个网站了。

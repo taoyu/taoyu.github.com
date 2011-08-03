@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 戒骄戒躁
-category: essay
+category: thinking
 ---
 
 正如题目所说，我这篇用来“自省+自勉”的文章分成两部分：

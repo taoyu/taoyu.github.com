@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 最近的N个想法
-category: essay
+category: life
 ---
 
 好久没写博客了，前段时间实在是忙，各种考试，各种大作业，好在这学期的课都很有用，学起来也有劲。

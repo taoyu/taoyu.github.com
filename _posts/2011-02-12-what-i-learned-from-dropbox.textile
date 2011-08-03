@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 从dropbox学到的东西
-category: essay
+category: entrepreneur
 ---
 
 <p>关注互联网的朋友对于dropbox肯定不陌生，我很早之前就想写一篇关于dropbox的文章了，但由于自己的拖沓，一直耽搁着。今天不想看书，就谈一谈我从dropbox学到的东西。</p><p>下面这个视频时dropbox创始人Drew Houston在Startup Lessons Learned上的演讲，为方便墙内朋友观看，我从youtube上下载下来传到了优酷上:</p>

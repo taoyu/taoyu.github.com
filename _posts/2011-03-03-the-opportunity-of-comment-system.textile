@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 评论系统的机会
-category: essay
+category: web
 ---
 
 很早之前就注意到了Disqus，因为非常多的英文网站都用它的评论系统，如著名的<a href="http://techcrunch.com/">techcrunch</a>。

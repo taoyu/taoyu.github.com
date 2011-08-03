@@ -1,7 +1,7 @@
 ---
 layout: post
 title: David Heinemeier Hansson对小型创业公司的建议
-category: essay
+category: reading
 ---
 
 David Heinemeier Hansson绝对是个大牛人，但似乎国内关注他的人并不多，他是<a href="http://37signals.com/">37signal</a>s的成员，是<a href="http://en.wikipedia.org/wiki/Ruby_on_Rails">ruby on rails</a>的创始人，更是一个帅哥。关于他的基本信息：<a href="http://en.wikipedia.org/wiki/David_Heinemeier_Hansson">wikipedia</a>，<a href="http://www.loudthinking.com/">他的个人网站loudthinking</a>，<a href="http://www.techcn.com.cn/index.php?doc-view-70892.html">一篇介绍他的中文文章</a>。

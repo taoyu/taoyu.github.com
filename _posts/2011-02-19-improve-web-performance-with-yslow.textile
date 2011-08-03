@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 通过YSlow提高网站性能
-category: essay
+category: web
 ---
 
 yahoo曾经提出过一系列优化网站性能的法则，还出出过一本名为<a href="http://book.douban.com/subject/2084131/">high performace web sites</a>书专门讲这些法则，这本书很值得一读，如果不想买书的话，看看<a href="http://developer.yahoo.com/performance/rules.html">yahoo developers上的说明</a>也足够了。Yahoo团队还推出了一款firefox插件，用来帮助大家发现自己网站的不足，它会根据那些条法则给你的网站评分，并给你提出建议，很实用，推荐每一个有个人网站的人都应该用一下。

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 学生创业指导(by Paul Graham)
-category: essay
+category: entrepreneur
 ---
 
 Paul Graham是Y Combinator的联合创始人，《hackers and painters》的作者，大牛人，超有影响力。

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 实习，招聘，面试(续)
-category: essay
+category: thinking
 ---
 
 上一篇写了一点我找实习的过程和感受，感觉还有很多东西没有说清楚，决定再写一篇，go on.

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 我为什么写博客
-category: essay
+category: life
 ---
 
 这是一个非常基本的问题，是每一个准备写博客的人必须考虑清楚的问题，否则的话很难坚持下来，而写博客则是贵在坚持。
