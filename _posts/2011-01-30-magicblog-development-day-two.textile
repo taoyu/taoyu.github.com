@@ -1,0 +1,119 @@
+---
+layout: post
+title: magicblog开发日记(2)-添加模板,文章列表及单个文章的显示，添加评论
+category: essay
+---
+
+昨天把基本的model完成了，也可以在后台添加post了，现在就要在前端显示出来。
+
+到了前端就需要模板了，模板自己可以做，就是太难看了，还是上网上找一个免费的吧。找啊找，<a href="http://www.freecsstemplates.org/preview/regeneracy/">这个</a>比较喜欢，就用这个了。
+
+将模板下载下来，解压，将其中的index.html中的内容拷贝到base.html中去，再次访问http://127.0.0.1:8000/发现css和图片没有加载，这就涉及到了静态文件的问题。
+
+Django是用来产生动态内容的，不应该用来处理静态文件，效率又低又不安全，但由于我们还在开发阶段，可以通过django.views.static.serve()方法来处理静态文件，但是当部署的时候就不能这样了，到时候最好用apache等服务器来serve静态文件。关于Django处理静态文件的问题，<a href="http://www.iyouf.info/django-serve-static-files.html">这篇博客</a>写的很清楚。
+
+首先在urls.py中添加 STATIC_PATH=rel('static')  ，然后在urls.py中添加：
+
+(r'^static/(?P&lt;path&gt;.*), 'django.views.static.serve',{'document_root':settings.STATIC_PATH}),
+
+把base.html中css文件的url改为 “/static/style.css” ，并将style.css和images文件夹放入 /magicblog/static文件夹内，现在再打开http://127.0.0.1:8000/ 就可以正常显示网页了
+
+把base.html中的sidebar部分移出来，成为一个单独的文件sidebar.html，同理把content部分也移出来，叫做index.html，在base.html中的相应位置分别加入 {% block content %}{% endblock %} 和{% include "sidebar.html"%}。
+
+index.html和about.html都继承自base.html，并且实现了content这个block。
+
+上面的工作是为了把文件分开，以便后期维护，并且最高效率的利用代码，避免大量重复的代码。
+
+对于单个文章(single post)以及首页文章列表(post list)的显示准备用generic view，方便，可以少写不少代码。而这两个generic view又有很多相似之处，故准备写一个通用的方法来做view，在blog目录下增加views.py，代码如下：
+[code]
+from django.shortcuts import render_to_response, get_object_or_404
+from magicblog.blog.models import *
+from django.views.generic import list_detail
+
+def blog_generic_view(request, redirect_to, **view_args):
+     view_args['queryset'] = view_args.get('queryset', Post.objects.all())
+     view_args['template_object_name'] = 'post'
+
+     return redirect_to(request, **view_args)
+[/code]
+上面设置"template_object_name"是为了避免使用默认的"object" ，其他的都很容易理解。
+
+下面就要在blog文件夹下建立tempaltes文件夹，再在这个templates文件夹下建立blog文件夹，再在这个blog文件夹内建立post.html，post_list.html和post_detail.html这三个文件。Django会自动找到后两个文件作为generic view的两个template，但文件名和路径一定要保证正确。
+
+其中post.html是一个post的template，post_detail.html继承post.html并且加上后来要增加的comments，post_list.html包含(include)一系列post.html来形成post list。
+
+post.html如下:
+[code]
+{% load comments %}
+{% get_comment_count for post as comment_count %}
+&lt;div class=&quot;post&quot;&gt;
+     &lt;h2 class=&quot;title&quot;&gt;&lt;a href=&quot;{% url single_post slug=post.slug %}&quot;&gt;{{ post.title }}&lt;/a&gt;&lt;/h2&gt;
+     &lt;p class=&quot;meta&quot;&gt;Posted on {{ post.published|date:&quot;F j, Y&quot; }}Comments ({{ comment_count }})&lt;/p&gt;
+
+     &lt;div class=&quot;entry&quot;&gt;{{ post.body|safe }}&lt;/div&gt;
+&lt;/div&gt;
+[/code]
+涉及到comment都要 {% load comments %}，其他的都很显然。
+post_detail.html如下：
+[code]
+{% extends &quot;base.html&quot; %}
+
+{% block content %}
+{% include &quot;blog/post.html&quot; %}
+&lt;div class=&quot;post&quot;&gt;
+     &lt;h2 class=&quot;title&quot;&gt;Comments&lt;/h2&gt;
+     {% load comments %}
+     {% get_comment_list for post as comment_list %}
+
+     {% for comment in comment_list %}
+          &lt;p class=&quot;meta&quot;&gt;Posted by {{ comment.user_name }} on {{ comment.submit_date|date:&quot;F j, Y&quot; }}&lt;/p&gt;
+
+          &lt;div class=&quot;entry&quot;&gt;{{ comment.comment }}&lt;/div&gt;
+     {% endfor %}
+
+&lt;/div&gt;
+{% get_comment_form for post as comment_form %}
+
+&lt;form id=&quot;comment_form&quot; action=&quot;{% comment_form_target %}&quot; method=&quot;post&quot;&gt; {% csrf_token %}
+     {{ comment_form }}
+
+     &lt;input name=&quot;next&quot; type=&quot;hidden&quot; value=&quot;{% url single_post slug=post.slug %}&quot; /&gt; &lt;input class=&quot;submit-post&quot; name=&quot;post&quot; type=&quot;submit&quot; value=&quot;Submit&quot; /&gt;
+&lt;/form&gt;
+{% endblock %}
+[/code]
+也没什么，就是用了一下Django的comment组件，看不懂的自己上Django官网看看吧。
+下面是post_list.html:
+[code]
+{% extends &quot;base.html&quot; %}
+
+{% block content %}
+     {% if post_list.count %}
+          {% for post in post_list %}
+               {% include &quot;blog/post.html&quot; %}
+          {% endfor %}
+     {% else %}
+          There are no items to display...
+     {% endif %}
+{% endblock %}
+[/code]
+这个就更简单了，就是遍历一下而已。
+当然，要使用Django自带的comments，必须在settings.py中“激活”。
+下面就要处理url的映射关系了，首先编辑blog目录下的urls.py，增加以下两条：
+[code]
+url(r'^post/(?P[a-z-]+)/$', blog_generic_view,
+{'redirect_to': list_detail.object_detail, 'slug_field': 'slug'}, name=&quot;single_post&quot;),
+url(r'^$', blog_generic_view,
+{'redirect_to': list_detail.object_list}, name=&quot;blog_home&quot;),
+[/code]
+第一条是单个post的url，第二条是post list的url。值得一提的是第一个url使用了slug(之前在Post类中定义过)，这样可以使url更漂亮。
+最后还要编辑根目录下的urls.py，使blog这个app内的urls.py生效，增加以下两个条目：
+[code]
+(r'^comments/', include('django.contrib.comments.urls')),
+(r'^', include(&quot;magicblog.blog.urls&quot;)),
+[/code]
+第一个条目显然是为了支持comments，第二个条目放在最后，让blog这个app处理所有前面的url所处理不了的请求。
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+经过第二天的努力，现在的magicblog已经有点模样了，截图一下,明天继续
+<img class="aligncenter" title="magicblog_2_1" src="https://uk1xdq.blu.livefilestore.com/y1po4rC7JsCqyt2vJKK02mj61t60BXXX2xU7y3qcjCNB6DkqQK-JDhwgduPgSYQs_s1i6yoO3dMC0ev_eJtwDLavl0E-MADptUi/magicblog_2_1.JPG?psid=1" alt="" width="756" height="352" />
+<p style="text-align: center;"><img class="aligncenter" title="magicblog_2_2" src="https://uk1xdq.blu.livefilestore.com/y1phJJUpfUC9OJdnEGRXLgBFTjim3QteRgYPwSyWa9nkxsrjSgnC0jzIu7xiNMIVZ-CWsAXFt41oP-XvkqKD_q-72pVPnjMdffa/magicblog_2_2.JPG?psid=1" alt="" width="755" height="296" /></p>
+<p style="text-align: center;"><img class="aligncenter" title="magicblod_2_3" src="https://uk1xdq.blu.livefilestore.com/y1phJJUpfUC9OJLv9X23-j0fSkPNSFzWXQB9vM8E4l4M8HxLh6EPSBCiHG6KOEdKUZl_m_uCN6efyXj2n-lNFWGFcQ8mMT_pdQ6/magicblog_2_3.png?psid=1" alt="" width="768" height="480" /></p>

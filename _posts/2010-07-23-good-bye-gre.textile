@@ -1,0 +1,47 @@
+---
+layout: post
+title: good bye,GRE
+category: essay
+---
+
+今天中午查到了6G的成绩，450+790+3.5，很鸡肋的分数，正所谓“<span style="font-family: arial; line-height: 18px; font-size: small;">弃之如可惜，食之无所得</span>”。
+
+由于大多数同学都是考10G，最近很多同学问我关于GRE的各种问题，希望此文能对大家有帮助。我这里没有什么成功的经验，有的只是失败的教训，但我认为失败的教训比成功的经验更重要，正如马云所说"成功的原因千千万万，失败的原因只有一个"。
+
+首先简要说一下我从开始准备GRE到现在的历程：
+
+1.大二上一直在背单词，大概过了2遍半
+
+2.今年寒假上的新东方
+
+3.新东方后大概有20多天准备作文，由于前期很迷茫，不知从何下手，浪费了点时间，实际准备作文时间大概在15-20天。argue写了12篇，issue大概写了25篇
+
+4.考完机考就开始颓废了，当时自己感觉离笔考时间还很长。之后的一段时间只是每天拿2个小时背单词，也没做题，倒是研究了一阵Hadoop，申请参加了一个开源项目，但没成功。
+
+5.五一去世博会玩了3天，回来休息2天，大概5月10号正式开始准备笔考，也就是说我只有一个月时间准备笔考。
+
+6.接下来的一个月狂过单词，十几天的突击很有效，效果比从前的几个月都好多了。然后做了点题，就上考场了。自己估计就是400多分。
+
+好了，该说失败的教训了，就一句话“努力不够”。
+
+GRE是一个很白痴的考试，根本考不出任何水准，至少对于中国学生是这样的。
+
+数学我就不说了，不是800也能780,790，关键说语文和作文。
+
+先说语文，用一句话来说就是“单词是王道”。当你不能保证单词很熟的时候不要提什么阅读，因为单词不很熟的话根本没时间做阅读，我就是这样，我身边的没过500的同学也是如此。想过500很容易，单词搞好了阅读瞎蒙都可以过500。什么类比，反义，归根到底都是单词，新东方是会讲一些技巧，但是当你一道题里4个选项不认识的时候，所谓的技巧就只是一个屁了。对于填空，技巧性还是比较强的，主要是考逻辑，但对于填空单词同样很重要。阅读我基本没练过，也没什么好说的。
+
+再说作文，这个是所有中国考生共同的痛楚。你可以上太傻上看一看，基本都是3分3.5，4分都很少见，不管Verbal是600多还是500多的同学，作文能高于4分的凤毛麟角，那几个高于4分数学很低，估计是文科生。So, calm down，不就是3分和3.5的区别吗，当大面积人3分的时候，大家也就渐渐习惯了。一般来说作文20-30天准备时间足够了，前期一般都无从下手，完整的写完第一篇后就慢慢有感觉了，之后就是写高频列提纲，如此而已。
+
+最后说一说最重要的背单词，我看来红宝足够了，最后阶段过两遍逆序就完全OK了。网上的论坛总是有人说什么红宝这缺点那缺点，还列举了一堆书，其实他根本没背好红宝，才说红宝的单词如何不全的。根据我的切身经验，今年的考题基本上都是红宝里的（虽然有些我不认识，但我确信我在红宝中见过），2个section也就不过3个词汇在红宝中没出现，考完试说很多单词没见过的肯定是没认真背红宝的人。虽然我每个单词都见过，但是有一部分叫不准意思，同样是不行滴。
+
+本着分享精神，把一些我认为不错的作文资料放在下面:
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">七夜雪_AW之梦的最终章 关于GRE作文的备考以及精华资料分享_糖糖gtdream.pdf</a>
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">太傻南京机经频率统计ISSUE.xls</a>
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">argument小提纲.doc</a>
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">太傻全国机经频率统计.xls</a>
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">北美范文.pdf</a>
+<a href="http://www.dbank.com/download.action?t=40&amp;k=NDM5NTU2ODU=&amp;pcode=LCwxMzgyOTM4LDEzODI5Mzg=&amp;rnd=4" target="blank">issue高频提纲.doc</a>
+
+强烈推荐上面那个issue提纲，很不错，在网上很难找到更好的了
+
+GRE不是生活的全部，出国也并非最好的出路。当美国人用最低生活保障吸引大批优秀中国学生给他们打工的时候，当大批虚荣的中国学生炫耀offer却不知道未来在何方的时候，我们应该知道，GRE只不过是一个考试罢了。

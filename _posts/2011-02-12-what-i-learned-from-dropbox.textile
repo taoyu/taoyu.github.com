@@ -1,0 +1,36 @@
+---
+layout: post
+title: 从dropbox学到的东西
+category: essay
+---
+
+<p>关注互联网的朋友对于dropbox肯定不陌生，我很早之前就想写一篇关于dropbox的文章了，但由于自己的拖沓，一直耽搁着。今天不想看书，就谈一谈我从dropbox学到的东西。</p><p>下面这个视频时dropbox创始人Drew Houston在Startup Lessons Learned上的演讲，为方便墙内朋友观看，我从youtube上下载下来传到了优酷上:</p>
+<p>
+<object width="480" height="400" data="http://player.youku.com/player.php/sid/XMjEzMDk4ODMy/v.swf" type="application/x-shockwave-flash">
+<param name="data" value="http://player.youku.com/player.php/sid/XMjEzMDk4ODMy/v.swf" />
+<param name="align" value="middle" />
+<param name="src" value="http://player.youku.com/player.php/sid/XMjEzMDk4ODMy/v.swf" />
+<param name="quality" value="high" />
+</object>
+下面是演讲的slide：
+<div id="__ss_3836587" style="width: 425px;"><strong style="display: block; margin: 12px 0 4px;"><a title="Dropbox Startup Lessons Learned" href="http://www.slideshare.net/gueste94e4c/dropbox-startup-lessons-learned-3836587">Dropbox Startup Lessons Learned</a></strong> 
+<object id="__sse3836587" width="425" height="355" data="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=dropbox-startuplessonslearned-100423230315-phpapp02&amp;rel=0&amp;stripped_title=dropbox-startup-lessons-learned-3836587&amp;userName=gueste94e4c" type="application/x-shockwave-flash">
+<param name="data" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=dropbox-startuplessonslearned-100423230315-phpapp02&amp;rel=0&amp;stripped_title=dropbox-startup-lessons-learned-3836587&amp;userName=gueste94e4c" />
+<param name="allowFullScreen" value="true" />
+<param name="allowScriptAccess" value="always" />
+<param name="src" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=dropbox-startuplessonslearned-100423230315-phpapp02&amp;rel=0&amp;stripped_title=dropbox-startup-lessons-learned-3836587&amp;userName=gueste94e4c" />
+<param name="name" value="__sse3836587" />
+<param name="allowfullscreen" value="true" />
+</object>
+<div style="padding: 5px 0 12px;">View more <a href="http://www.slideshare.net/">presentations</a> from <a href="http://www.slideshare.net/gueste94e4c">gueste94e4c</a>.</div>
+</div>
+<p>在dropbox之前，已经有几百家文件同步，云存储公司了，这个领域看似已经非常成熟了，竞争也非常激烈，但是真正使用这类产品的人并不多，因为现有的产品并不好用。</p><p>dropbox发布前，他们就已经开始推广dropbox了：他们<a href="http://news.ycombinator.com/item?id=8863">在hacker news上宣传dropbox</a>，并且得到了非常好的反馈，之后又发布了一段介绍dropbox的视频，这段视频被digg了75000次(很赞的一段视频，简单易懂，非常清楚的讲解了dropbox究竟能帮你做什么，你会突然发现自己一直在寻找的那款产品总算出现了)。产品没有成行的时候，他们就先发布了网站，想要率先体验dropbox的用户可以留下邮箱等待邀请，这又大大吊起了大家的胃口。同时，早期的宣传也可以得到很多未来用户的反馈，听听大家对这个产品的看法和建议。总之，dropbox在发布前的宣传很成功，很值得借鉴。</p><p>dropbox正式发布之后的PR做的也不错，获得了techcrunch的报道。dropbox同时买了不少google的关键字广告，虽然效果并不理想，但这并没有影响他们用户数成指数增长。</p><p>dropbox用户数飞速增长的原因在于&ldquo;口口相传&rdquo;的力量。因为开始注册的时候你获得的容量比较小，你可以通过邀请朋友来提高自己的免费容量。当一个人发现dropbox真的很好用的时候，他当然希望自己的空间大一点，况且朋友也应该会喜欢这么棒的服务。当他的朋友看到dropbox时，猛然发现自己也有这个需求，用了一下发现dropbox太好用了，就推荐给了他更多的朋友。于是dropbox就开始了病毒式传播。</p><p>启示1：不要再意淫那些自己幻想出来的从未出想过的产品了。事实上很多现有的产品都还不够好用，还有很大的创新空间。</p><p>启示2：常听说"launch early"，启示宣传推广也要趁早，不必一定等到产品完全OK之后才宣传。如果你的产品足够cool的话，可以早早的就开始赢得关注，积累未来的第一批用户并且得到宝贵的建议和反馈。</p><p>启示3：你的创业注定失败的原因之一是&ldquo;你做了一个没人想要的产品&rdquo;</p><p>启示4：&ldquo;口口相传&rdquo;和&ldquo;朋友推荐&rdquo;，这看似老套的推广营销方法其实是最有效果的。相比于网上乱飞的广告，大家都更相信好友的推荐。但这有一个前提，你的产品真的非常出色，否则一切都是扯淡</p><p>启示5：想要&ldquo;病毒式传播&rdquo;吗？你应该让用户更容易的与他们的朋友分享他们对于产品的喜爱，你同时需要给他们一些奖励，来激励他们这么做。</p><p>启示6：市场的种类包括：已有的市场，进一步细分的市场和全新的市场，不同的市场需要不同的营销方法，已有市场也蕴含着巨大的机会。</p>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+下面是另一段Drew Houston的视频，在mit的startup bootcamp上介绍dropbox的创业经历：    
+<object width="480" height="400" data="http://player.youku.com/player.php/sid/XMjEzMDk5NDI0/v.swf" type="application/x-shockwave-flash">
+<param name="data" value="http://player.youku.com/player.php/sid/XMjEzMDk5NDI0/v.swf" />
+<param name="align" value="middle" />
+<param name="src" value="http://player.youku.com/player.php/sid/XMjEzMDk5NDI0/v.swf" />
+<param name="quality" value="high" />
+</object>
+<p>这个视频更多的是介绍dropbox的创业经历，&ldquo;干货&rdquo;没有上一个视频多，就列下面这两条吧：</p><p>想要创业，但你感觉时机不成熟，最好的方式是加入一个创业公司，在那里你会学到更多。 失败很多次没有关系，你只需要成功一次就够了。</p>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<p>关于dropbox在quora有一个非常火爆的话题<a href="http://www.quora.com/Dropbox/Why-is-Dropbox-more-popular-than-other-programs-with-similar-functionality">Why is Dropbox more popular than other programs with similar functionality?</a>，强烈建议看一看，很早之前我就follow了这个question，不断有精彩的回答涌现出来。</p><p>Michael Wolfe对于这个问题的看法是：首先我们要回到这个问题的最初需求上来，我们的需求是什么？我们有一个文件夹，我们把需要同步的东西放进去，它默默的完成了同步任务，就这么简单。但是大部分创业者都认为要满足这个需求是实在是太简单了，这样的产品也太没有技术含量了，于是他们就会增加如 task management, calendaring, customized dashboards, virtual white boarding这些99%的用户根本不需要的功能。对以一款产品，解决用户的需求是关键，简单好用就足够了，多余的功能只会变成累赘，让用户变得一头雾水。</p><p>启示：做产品不是在学校里做project，最关键的是能否满足用户的需求，用户用的到底爽不爽，而不是你究竟写了多少代码，实现了多少没人用的功能。做加法容易，做减法难。做加法的时候你有很大的成就感，但是面对复杂的产品，用户却不知道如何下手。做减法才是真正的考验，因为你必须了解你的产品的核心功能是什么，什么才是用户真正需要的。(ps:这点在中国尤其如此，国内的海量用户仍旧是&ldquo;小白&rdquo;用户，越简单的东西他们越喜欢，这也解释了为什么360的装机量那么大，一键搞定，谁不喜欢)</p><p>其他人的回答也很精彩，大家还是自己看吧。</p>

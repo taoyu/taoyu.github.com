@@ -1,0 +1,121 @@
+---
+layout: post
+title: magicblog开发日记(5)-添加留言板，提供全文搜索
+category: essay
+---
+
+<p>&nbsp;</p>
+<div>
+<div>今天是大年三十，春晚实在是无聊，还是写程序吧, ? go!!!!</div>
+<div>~~~~~~~~~~~~~~~~~~~~~~~~~~</div>
+<div>&lt;h1&gt;1.增加留言板&lt;/h1&gt;</div>
+<div>其实这个功能可有可无，读者可以直接给我发邮件就可以了，但是为了方便读者，我还是准备实现以下&ldquo;留言板&rdquo;</div>
+<div>这就需要Django的Form的支持，关于Django Form可以参见&lt;a&nbsp;</div>
+<div>href="http://www.djangobook.com/en/2.0/chapter07/"&gt;Django Book的第七章&lt;/a&gt;。</div>
+<div>首先新建一个文件forms.py，并且定义一个ContactForm类，继承自Form类，代码如下：</div>
+<div>[code]</div>
+<div>from django import forms</div>
+<div>class ContactForm(forms.Form):</div>
+<div>&nbsp;&nbsp; &nbsp;subject = forms.CharField(max_length=100)</div>
+<div>&nbsp;&nbsp; &nbsp;email = forms.EmailField(required=False, label='your email')</div>
+<div>&nbsp;&nbsp; &nbsp;message = forms.CharField(widget=forms.Textarea)</div>
+<div>[/code]</div>
+<div>ContactForm类包含三个变量，分别为：标题，内容和读者的email。</div>
+<div>然后再urls.py中增加一条：(r'^contact/$', contact),</div>
+<div>最后在views.py中定义contact方法，如下：</div>
+<div>[code]</div>
+<div>from django.core.context_processors import csrf</div>
+<div>from django.http import HttpResponseRedirect</div>
+<div>from django.shortcuts import render_to_response</div>
+<div>from forms import ContactForm</div>
+<div>from django.core.mail import send_mail</div>
+<div>def contact(request):</div>
+<div>&nbsp;&nbsp; &nbsp;if request.method == 'POST':</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;form = ContactForm(request.POST)</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;if form.is_valid():</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cd = form.cleaned_data</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;send_mail(</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cd['subject'],</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;cd.get('email', 'noreply@example.com')+" &nbsp; says:\n"+cd['message'],</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;'magicblogemail@gmail.com',</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;['tylovemx@gmail.com'],</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;)</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;return HttpResponseRedirect('/contact/thanks/')</div>
+<div>&nbsp;&nbsp; &nbsp;else:</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;form = ContactForm()</div>
+<div>&nbsp;&nbsp; &nbsp;c = {'form': form}</div>
+<div>&nbsp;&nbsp; &nbsp;c.update(csrf(request))</div>
+<div>&nbsp;&nbsp; &nbsp;return render_to_response('contact_form.html', c)</div>
+<div>[/code]</div>
+<div>上面的代码把读者发来的数据写入邮件，发给站长本人，用到了Django发送email的功能，详见&lt;a&nbsp;</div>
+<div>href="http://docs.djangoproject.com/en/dev/topics/email/"&gt;Django文档&lt;/a&gt;，同时要在settings.py中设置</div>
+<div>email的参数，如下：</div>
+<div>[code]</div>
+<div>EMAIL_HOST = "smtp.gmail.com"</div>
+<div>EMAIL_HOST_PASSWORD = "magic1234"</div>
+<div>EMAIL_HOST_USER = "magicblogemail@gmail.com"</div>
+<div>EMAIL_USE_TLS = True</div>
+<div>[/code]</div>
+<div>最后要完成的就是上面用到的contact_form.html模板文件了，如下：</div>
+<div>[code]</div>
+<div>{% extends "base.html" %}</div>
+<div>{% block content %}</div>
+<div>&nbsp;&nbsp; &nbsp;&lt;h2 class="title"&gt;Contact me&lt;/h2&gt;</div>
+<div>&nbsp;&nbsp; &nbsp;&lt;p&gt;Please finish the form below or directly send me an email, my email address is&nbsp;</div>
+<div>"taoyu@mail.ustc.edu.cn"&lt;/p&gt;</div>
+<div>&nbsp;&nbsp; &nbsp;{% if form.errors %}</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&lt;p style="color: red;"&gt;</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Please correct the error{{ form.errors|pluralize }} below.</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&lt;/p&gt;</div>
+<div>&nbsp;&nbsp; &nbsp;{% endif %}</div>
+<div>&nbsp;&nbsp; &nbsp;&lt;form action="" method="post"&gt; &nbsp;{% csrf_token %}</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&lt;table&gt;</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;{{ form.as_table }}</div>
+<div>&nbsp; &nbsp;&lt;tr&gt;&lt;th&gt;&lt;/th&gt;&lt;td&gt;&lt;input type="submit" value="Submit"&gt;&lt;/td&gt;&lt;/tr&gt;</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&lt;/table&gt;</div>
+<div>&nbsp;&nbsp; &nbsp;&lt;/form&gt;</div>
+<div>{% endblock %}</div>
+<div>[/code]</div>
+<div>上面form.as_table将ContactForm类以table的方式展示成html，很方便。</div>
+<div>{% csrf_token %}是为了防止&ldquo;跨站请求伪造&rdquo;，为了安全。</div>
+<div>&lt;h1&gt;2.全文搜索&lt;/h1&gt;</div>
+<div>要实现全文搜索其实很简单，只需要在标题和正文中搜索用户输入的词即可，简单来说就是icontains。</div>
+<div>这个搜索功能准备用Manager类来实现，即实现一个PostManager类，继承自models.Manager，如下：</div>
+<div>[code]</div>
+<div>class PostManager(models.Manager):</div>
+<div>&nbsp;&nbsp; &nbsp;def search(self, search_string):</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;search_string = search_string.strip()</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;queryset = self.get_query_set()</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;return queryset.filter(models.Q(title__icontains=search_string) | models.Q</div>
+<div>(body__icontains=search_string))</div>
+<div>[/code]</div>
+<div>然后需要在Post类的定义中添加一句： objects = PostManager()</div>
+<div>下面就可以考虑view了，同样可以使用我们自定义的blog_generic_view来减少工作，和前面的不同之处在于search</div>
+<div>返回的queryset是包含搜索词的那些post：</div>
+<div>[code]</div>
+<div>def blog_post_search(request):</div>
+<div>&nbsp;&nbsp; &nbsp;if 's' in request.GET and request.GET['s']:</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;s = request.GET['s']</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;return blog_generic_view(</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;request,</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;list_detail.object_list,</div>
+<div>&nbsp; &nbsp;queryset = Post.objects.search(s)</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;)</div>
+<div>&nbsp;&nbsp; &nbsp;else:</div>
+<div>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;return render_to_response('blog/invalid_search.html')</div>
+<div>[/code]</div>
+<div>首先取出request中取出s变量，然后构建queryset，使用前面自定义的叫做search的Manager，最终通过封装好的</div>
+<div>blog_generic_view返回。如果用户输入有问题的话，返回invalid_search.html，如下：</div>
+<div>[code]</div>
+<div>{% extends "base.html" %}</div>
+<div>{% block title %}Invalid search{% endblock %}</div>
+<div>{% block content %}</div>
+<div>&lt;p&gt;Please submit a search term. &lt;/p&gt;</div>
+<div>{% endblock %}</div>
+<div>[/code]</div>
+<div>当然还要在urls.py中添加一句url(r'^search/$',blog_post_search,name="blog_post_search"),</div>
+<div>并且把模板中的搜索框的action地址改一下：</div>
+<div>&lt;form action="{% url blog_post_search %}" method="get"&gt; 这样就大功告成了!</div>
+</div>
+<p>&nbsp;</p>
+<form action="{% url blog_post_search %}" method="get"></form>

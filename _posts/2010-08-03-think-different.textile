@@ -1,0 +1,41 @@
+---
+layout: post
+title: think different
+category: essay
+---
+
+<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="480" height="400" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="data" value="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" /><param name="align" value="middle" /><param name="src" value="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" /><param name="quality" value="high" /><embed type="application/x-shockwave-flash" width="480" height="400" src="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf" quality="high" align="middle" data="http://player.youku.com/player.php/sid/XMTU5NTg2NA==/v.swf"></embed></object>
+
+这是1997年Steve Jobs重回Apple后拍摄的广告，传递了Apple的价值观
+
+think different是什么？
+
+是那些有独立思考能力的人；是那些不被世俗的观点所束缚的人；是那些求知若渴，善于思索的人；是那些为了理想而终生奋斗的人；是那些想要改变世界的人。
+
+Apple凭什么超越MS成为最大的科技公司？是Mac? 是iPod? 是iPhone? 是iPad?-------NO,是Apple的价值观think different.
+
+真正的创新的根源必定是think different, 颠覆性的产品必定来自于different thinking
+
+当大家都忙着满足用户需求的时候，Apple发掘了用户的潜在需求(iPod)，激发了用户新的需求(iPhone)，甚至能够创造出前所未有的需求(iPad)，这就是think different！
+
+sony的walkman时代，你必须同时买下一张专辑的所有歌曲，而iPod让你可以单独下载任何一首自己喜欢的歌曲；在诺基亚时代，手机的最大作用是打电话，iPhone告诉你它同时可以成为强大的移动终端；iPad问世之前，你从没有想过你需要一款介于手机和笔记本之间的电子产品，是iPad创造了这种需求。
+
+最后附上视频的字幕。不翻译成中文了，翻译过来就不地道了:
+
+<span style="font-family: Arial, sans-serif, Helvetica, Tahoma; line-height: 18px; font-size: 14px;">Here’s to the crazy ones.
+The misfits.
+The rebels.
+The troublemakers.
+The round pegs in the square holes.
+The ones who see things differently.
+They’re not fond of rules.
+And they have no respect for the status quo.
+You can quote them, disagree with them, glorify or vilify them.
+About the only thing you can’t do is ignore them.
+Because they change things.
+They push the human race forward.
+And while some see them as the crazy ones,
+We see genius.
+Because the people who are crazy enough to think
+they can change the world,
+Are the ones who do. </span>

@@ -1,0 +1,54 @@
+---
+layout: post
+title: magicblog开发日记(7):部署到服务器
+category: essay
+---
+
+magicblog在三天前就完全写好了，剩下的最大任务就是部署到服务器上了。
+开始时我以为部署到服务器应该是很简单的事，没想到竟然花掉了我两天的时间。
+因为是第一次部署Django应用，所有可能出现的问题我都遇到了，一个一个解决，最终总算是Ok了，我现在看到的这个博客就是magicblog，是我这几天用Django写的。
+部署Django到Apache有两种选择：mod_python和mod_wsgi，前者已经渐渐被淘汰了，所以我选择了后者。至于具体使用mod_wsgi的方法，先看我下面给的链接：
+http://code.djangoproject.com/wiki/django_apache_and_mod_wsgi  这篇文章对我的帮助最大
+http://code.google.com/p/modwsgi/  mod-wsgi的官网，文档超烂，很难看懂，不推荐
+首先要在根目录下新建一个apache目录，用来存放部署时需要用到的文件。
+首先要有apache的配置文件apache_django_wsgi.conf ：
+[code]
+Alias /media/ /usr/lib/python2.6/site-packages/django/contrib/admin/media
+    <Directory /usr/lib/python2.6/site-packages/django/contrib/admin/media>
+      Order deny,allow
+      Allow from all
+      SetHandler none
+    </Directory>
+    Alias /static/ "/var/www/html/magicblog/static/"
+    <Directory "/var/www/html/magicblog/static">
+    Order allow,deny
+    Options Indexes
+    Allow from all
+    IndexOptions FancyIndexing
+    </Directory>
+    <Directory /var/www/html/magicblog>
+      AllowOverride All
+      Order allow,deny
+      Allow from all
+    </Directory>
+    WSGIScriptAlias / /var/www/html/magicblog/apache/magicblog.wsgi
+[/code]
+前半部分是用apache来serve静态文件。最关键的是最后一句，把这个网站都交给magicblog.wsgi处理，下面就是magicblog.wsgi :
+[code]
+import os, sys
+sys.path.append('/var/www/html')
+sys.path.append('/usr/lib/python2.6/site-packages/django/')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'magicblog.settings_production'
+ 
+import django.core.handlers.wsgi
+ 
+application = django.core.handlers.wsgi.WSGIHandler()
+[/code]
+上面的代码很简单，照着文档上的改一改就行了，关键之处在os.environ['DJANGO_SETTINGS_MODULE']要指向settings.py，这里由于开发阶段和部署阶段使用的配置文件，不同，我新建settings_production.py,和settings.py的不同之处在于把Debug改成了False，并且最关键的一点是把database的name一定要换成绝对路径，否则会出现500错误。
+另一个不同之处在于ROOT_URLCONF，应该指向部署后的urls.py，我新建了一个名为urls_production.py的文件，与urls.py的不同在于其中不包括静态文件的url设置，因为部署后我们使用apache来serve静态文件了。
+到这里基本工作结束了，但你可能还会遇到问题，比如总是不能写入数据库，我就把db文件的owner设置成了apache，还是不行，我实在找不出了解决办法，最终在一个mail-list的角落找到了原因，我需要把db的上级文件夹的owner也设置为apache，这个困扰我很久的问题总算解决了。
+部署过程中遇到了很多问题，我发现自己的那点linux知识已经不够用了，急需补充补充，所以准备看看《鸟哥的linux私房菜》，大概翻看了一下，感觉不错，准备好好看看。
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+至此magicblog的开发就要告一段落了，我是边学Django边写magicbblog，写程序用了6天，部署用了2天，最终完成了我自己的"Hello world"。
+虽然自己的magicblog肯定比不上wordpress，但magicblog总归是我自己写的，他就像我的孩子一样。
+时间过的好快，寒假就要结束了，把握最后的一点时间看看书吧。

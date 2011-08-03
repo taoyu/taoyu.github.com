@@ -1,0 +1,37 @@
+---
+layout: post
+title: 社交网络的未来
+category: essay
+---
+
+facebook是社交网络的终点吗？
+
+未来的社交网络会是怎样？
+
+虽然facebook已经取得了巨大的成功，但它肯定不是终点，它必然会像MS和Google等巨头一样，一点点老去，被新兴公司的光辉所遮盖。
+
+facebook还有那些不足呢？
+
+我也想过这些问题，我也是“重度”社交用户，几乎每天都会上facebook的山寨版“人人网”，我在使用SNS的时候也感到了很多问题，比如我的一个状态会被所有好友所看到，然而真实世界中我有很多不同的社交圈，对不同圈子的人我会发出不同的声音。
+
+关于“真实生活中的社交网络”，有一个非常有名的slide，是一个前google员工对于“社交网络”的独到看法，这个slide我看了很多遍，绝对值得好好琢磨，作者在slide中的观点都很insightful，放在下面：
+<div id="__ss_4656436" style="width: 477px;"><strong><a title="The Real Life Social Network v2" href="http://www.slideshare.net/padday/the-real-life-social-network-v2">The Real Life Social Network v2</a></strong><object id="__sse4656436" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="477" height="510" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="src" value="http://static.slidesharecdn.com/swf/doc_player.swf?doc=vtm2010-100701010846-phpapp01&amp;stripped_title=the-real-life-social-network-v2&amp;userName=padday" /><param name="name" value="__sse4656436" /><param name="allowfullscreen" value="true" /><embed id="__sse4656436" type="application/x-shockwave-flash" width="477" height="510" src="http://static.slidesharecdn.com/swf/doc_player.swf?doc=vtm2010-100701010846-phpapp01&amp;stripped_title=the-real-life-social-network-v2&amp;userName=padday" name="__sse4656436" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+<div style="padding: 5px 0 12px;">View more <a href="http://www.slideshare.net/">documents</a> from <a href="http://www.slideshare.net/padday">Paul Adams</a>.</div>
+</div>
+如果你英文不给力的话，可以看看这个<a href="http://dongxi.net/b01q3">中文版</a>(我更建议你好好学学英文)。
+
+这个slide非常长，观点很多，但都很有见地，我就不一一列举了，自己慢慢品吧。
+关于这个slide有<a href="http://yogar.blogbus.com/logs/79558935.html">一篇我很认同的文章</a>，<a href="http://yogar.blogbus.com">Nothing but a tree</a>这个blog我也很喜欢，博主的分析都很透彻。
+~~~~~~~~~~~~~~~~~~~~~~~~~
+前段时间还有一个演讲我非常非常喜欢，叫做“社交网络的过去，现在和将来”，演讲者是著名的风险投资人Mark Suster，他的博客<a href="http://www.bothsidesofthetable.com/">both sides of the table</a>也是我最喜欢的blog之一。
+这个演讲的<a href="http://www.entforum.caltech.edu/video/october2010-video.html">视频</a>在此，techcrunch的英文报道<a href="http://techcrunch.com/2010/12/03/social-networking-past/">在此</a>，中文版本<a href="http://tech2ipo.com/1176">在此</a>，slide在下面：
+<div id="__ss_5940661" style="width: 425px;"><strong><a title="Social Networking: Past, Present &amp; Future" href="http://www.slideshare.net/msuster/social-networking-past-present-future">Social Networking: Past, Present &amp; Future</a></strong><object id="__sse5940661" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="425" height="355" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="src" value="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=v3caltechmitenterpriseforum-socialnetworking-101127220553-phpapp02&amp;stripped_title=social-networking-past-present-future&amp;userName=msuster" /><param name="name" value="__sse5940661" /><param name="allowfullscreen" value="true" /><embed id="__sse5940661" type="application/x-shockwave-flash" width="425" height="355" src="http://static.slidesharecdn.com/swf/ssplayer2.swf?doc=v3caltechmitenterpriseforum-socialnetworking-101127220553-phpapp02&amp;stripped_title=social-networking-past-present-future&amp;userName=msuster" name="__sse5940661" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+<div style="padding: 5px 0 12px;">View more <a href="http://www.slideshare.net/">presentations</a> from <a href="http://www.slideshare.net/msuster">msuster</a>.</div>
+</div>
+这个演讲主要是说“社交网络”并不是什么新鲜的事物，其实早就有了，只是在不停的演进。到了近些年facebook的巨大成功将其推向了一个高峰，然而facebook并不是终点，twitter和LBS的出现说明社会化的网络还会继续发展。然而人们无法在同一个网站满足所有社交需求，所以会出现quora，HackerNews这样的网站。换句话说，“社交”将会更加细分，更加接近现实生活。
+
+同时“社会化”也是现在很多网站的发展趋势。
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+这篇博客差不多就这些了，似乎并没有什么我自己的观点，其实不然。对于“社交网络”的问题我想过很多，观点与上面两位的类似，但肯定远没他们分析的透彻，所以把这两个非常赞的资源介绍给大家，希望对于来到这里的朋友有所启发。

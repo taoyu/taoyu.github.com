@@ -1,0 +1,25 @@
+---
+layout: post
+title: Mark Bao，下一个Mark Zuckerberg? 现在的中国出不了这样的天才
+category: essay
+---
+
+Mark Bao今年才17岁，但他已经创办了11个公司和三个机构。他最近的一个项目是几天前的<a href="http://threewords.me/">http://threewords.me/</a>, 这个网站真正能称得上是病毒式传播(viral)，3天内访问量成指数增长，以至于Mark都不找应该如何处理这个网站了。
+
+随后他到<a href="http://news.ycombinator.com/item?id=2051288" target="_blank">hacker news</a>上求助，他说“一天内有22万pv，5万新用户，在过去的一小时内又有3100个新用户”，这样的数据简直是unbelievable。此贴的回复数惊人，众hacker为Mark出谋划策，对于他的建议主要在于数据库方面(因为网站的瓶颈通常发生在数据库)，还有很多人建议他转移到AWS或是Heroku，大家又开始讨论各个hosting之间的比较，热闹非凡。当然对于Mark只有17岁就创办了11家公司的事实，大家也都很惊叹。
+
+threeword.me的想法很简单，就是让你用3个词评价一个朋友，可以用facebook登陆，其病毒式传播主要来自twitter，trumblr和facebook，至于具体细节可以看<a href="http://techcrunch.com/2010/12/30/three-words/" target="_blank">techcrunch的报道</a>。Mark随后在<a href="http://www.quora.com/How-did-ThreeWords-me-acquire-initial-users-and-grow-so-rapidly-to-a-wide-audience" target="_blank">quora</a>上详细说明了threewords能够吸引最初的用户并且病毒式的增长的原因，值得一看。
+
+Mark Bao的个人介绍<a href="http://markbao.com/about" target="_blank">在这</a>, 还有若干关于他的采访，其中一个<a href="http://juniorbiz.com/interview-mark-bao" target="_blank">在这</a>。
+
+Mark Bao这个人我以前就关注过，他的确是太牛了，值得一提的是他是华裔移民，出生于黑龙江。
+
+在互联网行业，成功的华裔创业者基本都是美国移民。yahoo的杨致远，youtube的陈士骏，zappos的谢家华，这三位都是台湾人，从小就移民美国。创新工场的李开复也是在台湾出生，在美国上学长大。Mark Bao很可能就是下一个全球闻名的华裔entrepreneur。
+
+一个奇怪又不奇怪的事情是：美国的成功创业者基本都是辍学生，普遍特点是都很年轻，而中国的成功创业者很大一部分是在美国读pdh发现了商机，马上回国copy一个在美国成功的公司，李彦宏的百度，张朝阳的sohu，王兴的校内，饭否，美团，等等。
+
+在中国听说过哪个本科生辍学创业吗？你看到过像Mark Bao这种17岁就创办了11个公司的人吗？
+
+大部分中国学生大一才会写hello world，我就是如此。中国少部分在上大学前就接触了编程的人基本上都是那些搞信息学竞赛的(在中科大有不少这样的保送生)，他们与Mark Zuckerberg和Bill Gates最大的不同是：他们学习编程是为了参加比赛获奖，并且获得保送名校的机会，而Mark和Gates从小学习编程时处于发自内心的喜爱。一个是功利的为了比赛，一个是发自内心的喜爱，天壤之别，这就造成了上海交大虽然能得到ACM全球第一，但是却没听说有哪个非常成功的创业者。
+
+更何况，创业不单单是会写几行程序就ok了，中国学生没有几个真正有创业意识，没有几个关心自己写的程序到底有没有商业价值，他们只关心完成老师的作业，让自己的程序能够编译通过。在现在的中国怎么可能产生Mark这种人？

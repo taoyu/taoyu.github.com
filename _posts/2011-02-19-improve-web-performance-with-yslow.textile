@@ -1,0 +1,67 @@
+---
+layout: post
+title: 通过YSlow提高网站性能
+category: essay
+---
+
+yahoo曾经提出过一系列优化网站性能的法则，还出出过一本名为<a href="http://book.douban.com/subject/2084131/">high performace web sites</a>书专门讲这些法则，这本书很值得一读，如果不想买书的话，看看<a href="http://developer.yahoo.com/performance/rules.html">yahoo developers上的说明</a>也足够了。Yahoo团队还推出了一款firefox插件，用来帮助大家发现自己网站的不足，它会根据那些条法则给你的网站评分，并给你提出建议，很实用，推荐每一个有个人网站的人都应该用一下。
+
+最初YSlow给<a href="http://www.colorfulcloud.com">我的博客</a>的评分为82，给我提出的建议在于：Add an Expires header， Gzip components，Configure ETags。经过我的一番优化之后，最终评分上升到了100分，根据"小型网站/博客"的标准已经非常完美了，下面就分享一下我的优化过程。
+
+<h2>1.Add an Expires header</h2>
+我的博客首页一共有7个图片，没有加expire header之前，每次页面请求都会产生对于这些图片的7个http request，这是非常糟糕的，严重影响了页面加载速度，其实这些图片本可以缓存在读者的浏览器中的，这样的话，这些图片只需要下载一次，未来一段时间内再次请求时服务器只需要返回304即可。
+
+除了图片，CSS和JS也最好也要缓存
+
+解决方法是在apache的配置文件中加入下面的设置：
+AddType image/x-icon .ico
+Add an Expires header
+
+ExpiresActive On
+
+ExpiresByType image/x-icon A2592000
+
+ExpiresByType application/x-javascript A604800
+
+ExpiresByType text/css A604800
+
+ExpiresByType image/gif A2592000
+
+ExpiresByType image/png A2592000
+
+ExpiresByType image/jpeg A2592000
+
+ExpiresByType text/html M600
+</IfModule>
+text/css表示样式表文件，text/plain代表的纯文本类文件，依次类推。那个A2592000就表示这种类型文件在浏览器中的缓存时间，以秒为单位。一天86400秒，2592000就表示这类文件可以缓存30天。如果不是经常修改模板，那样式表文件和javasctipt文件基本上也可以设置缓存一周到一个月左右。text/html文件不要设置太长的缓存时间，因为这些东西修改的频率很高，而且大部分blog的访客平均访问时间能到10分钟的并不多。
+
+<h2>2.Configure ETags</h2>
+上面已经对浏览器缓存机制中的Cache-Control和Expires进行了配置，但还有另外两个：Last-Modified和ETag简单的说，即使设置了文件的期限，浏览器在访问资源时往往会因为Last-Modified和ETag而重新下载整个资源，所以简单的做法是关闭Last-Modified和ETag， 在Apache中做如下配置:
+
+FileETag none
+
+很简单吧
+
+<h2>3.Gzip components</h2>
+首先要正确区分mod_deflate和mod_gzip
+所谓gzip，其实在早期的apache 1.x系列版本中没有内建网页压缩技术，所以才需要去gzip压缩，apache2官方在开发的时候，就已经把网页压缩考虑进去，内建了mod_deflate模块，所以apache2就不需要使用到mod_gzip了，这两者的工作原理是类似的，还有启用mod_deflate这个网页压缩的模块，功能和效率和mod_gzip是差不多的，甚至还好一些，就不需要再用mod_gzip模块了。
+使用mod_deflate模块，需要配置apache如下：
+<ifmodule mod_deflate.c>
+DeflateCompressionLevel 6
+
+# DEFLATE by type - html, text, css, xml
+AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+ 
+# DEFLATE by type - javascript
+AddOutputFilterByType DEFLATE application/x-javascript application/javascript text/javascript text/x-js text/x-javascript
+ 
+# DEFLATE by extension
+AddOutputFilter DEFLATE js css htm html xml
+</ifmodule>
+这样可以压缩一般网页中会用到的html、xml、css、js等格式档案输出，虽然会占用掉服务器处理器的一点点处理器时间，浏览者在接收 网页数据时也会消耗极短暂的一点点处理器时间，不过却可以大幅减少数据传输量，减少网络带宽被吃掉的情形。
+DeflateCompressionLevel 9是指压缩程度的等级，从1到9，9是最高等级。据了解，这样做最高可以减少8成大小的传输量（看档案内容而定），最少也能够节省一半。
+DeflateCompressionLevel 预设可以采用 6 这个数值，以维持耗用处理器效能与网页压缩质量的平衡。
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+上面涉及到的问题在”计算机网络“这门课上都有提到，但当时学的时候只知道个概念，并没有深入的理解。这次自己动手折腾了折腾，对这几个问题的认识清晰了很多。
+学习啊，若只是看看书，上上课，那还远远不够啊
