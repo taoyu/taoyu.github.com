@@ -1,7 +1,7 @@
 ---
-layout:post
-title:开博第一篇
-category:life
+layout: post
+title: 开博第一篇
+category: life
 ---
 
 最近考完试，没什么事，就折腾了一下很久没有更新的blog.
