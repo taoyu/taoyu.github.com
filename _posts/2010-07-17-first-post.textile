@@ -1,0 +1,21 @@
+---
+layout:post
+title:开博第一篇
+category:life
+---
+
+最近考完试，没什么事，就折腾了一下很久没有更新的blog.
+
+原来在免费空间<a href="http://gofreeserve.com">gofreeserve</a>上有一个<a href="http://colorfulcloud.com">blog</a>，由于上一个学期准备考GRE，很忙的说，就很久没有更新了。
+
+免费空间总归是免费的，服务质量肯定不行，速度很慢，时不时还无法访问，弄得自己都不想看。
+
+这次本准备买个空间算了，但总感觉让那些奸商暴赚很不爽，以前就对GAE的强大又一定了解，寻思着这GAE上能不能架个blog?但是GAE只支持python和java，而WP是基于PHP的，但是在网上一搜，发现有人用python写了一个可以在GAE上运行的blog系统，欣喜万分。
+
+感谢<a href="http://xuming.net/">徐明</a>和他的<a href="http://micolog.xuming.net/zh-cn">micolog</a>，玩开源的牛人真多啊！用python的人也大多是牛人。
+
+后来又想把自己的域名colorfulcloud.com绑定到这个appengine上，上网上搜了一下，顺利搞定，不幸的是第二天ghs.google.com就被和谐了，悲剧。。。
+
+后来又发现了ghs.google.com的一个替代品ghs.<span style="font-family: Verdana, Tahoma, 'BitStream vera Sans', Arial, Helvetica, sans-serif; line-height: 17px; font-size: 12px; color: #333333;">you8g.com，感谢<a href="http://www.you8g.com/">you8g</a>。</span>
+
+<span style="font-family: Verdana, Tahoma, 'BitStream vera Sans', Arial, Helvetica, sans-serif; color: #333333;"><span style="line-height: 17px; font-size: small;">this blog is mainly meant to share my life, experience, ideas, technology skills and make new friends, welcome here~~</span></span>
