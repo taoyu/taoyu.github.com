@@ -26,7 +26,7 @@
 
 </ul>
 
-<h2 id="toc_1.2">tip</h2>
+<h2 id="toc_1.2">snippet</h2>
 <ul>
 <li>
 Sort a dictionary by value:
@@ -34,6 +34,15 @@ Sort a dictionary by value:
 import operator
 x = {1: 2, 3: 4, 4:3, 2:1, 0:0}
 sorted_x = sorted(x.iteritems(), key=operator.itemgetter(1))
+</pre>
+
+<li>
+Proxy with urllib2
+<pre>
+proxy = urllib2.ProxyHandler({'http': '127.0.0.1'})
+opener = urllib2.build_opener(proxy)
+urllib2.install_opener(opener)
+urllib2.urlopen('http://www.google.com')
 </pre>
 
 </ul>
@@ -48,16 +57,51 @@ sorted_x = sorted(x.iteritems(), key=operator.itemgetter(1))
 
 
 <h2 id="toc_1.4">crawler</h2>
+<h2 id="toc_1.5">overview</h2>
+<ul>
+<li>
+<a href="http://obmem.info/?p=476">用python爬虫抓站的一些技巧总结</a>
+
+<li>
+<a href="http://obmem.info/?p=753">使用python爬虫抓站的一些技巧总结：进阶篇</a>
+
+</ul>
+<h3 id="toc_1.5.1">scrapy</h3>
 <ul>
 <li>
 <a href="http://blog.pluskid.org/?p=366">Scrapy 轻松定制网络爬虫</a>
 
 </ul>
+<h3 id="toc_1.5.2">twisted</h3>
+<ul>
+<li>
+<a href="http://jessenoller.com/2009/02/11/twisted-hello-asynchronous-programming/">Twisted — hello, asynchronous programming</a>
 
-<h2 id="toc_1.5">resource</h2>
+<li>
+<a href="http://www.notedit.com/twisted%E6%95%99%E7%A8%8B/">twisted教程</a>
+
+<li>
+<a href="http://en.wikipedia.org/wiki/Asynchronous_I/O">asynchronous I/O</a>
+
+<li>
+google 异步编程 异步IO asynchronous programming/IO
+
+</ul>
+
+<h2 id="toc_1.6">resource</h2>
 <ul>
 <li>
 <a href="http://dandies.org/python/">python tool mirrors</a>
+
+</ul>
+
+<h2 id="toc_1.7">blog</h2>
+<ul>
+<li>
+<a href="http://jessenoller.com/">http://jessenoller.com/</a>
+
+<li>
+<a href="http://blog.donews.com/limodou/">http://blog.donews.com/limodou/</a>
 
 </ul>
 
