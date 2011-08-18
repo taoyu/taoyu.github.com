@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="Stylesheet" type="text/css" href="style.css">
+<title>string</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+
+<h1 id="toc_1">string</h1>
+
+<h2 id="toc_1.1">translate</h2>
+<pre>
+    import string
+    text = """hello world"""
+    table = string.maketrans(string.ascii_lowercase, string.ascii_lowercase[2:]+string.ascii_lowercase[:2])
+    string.translate(text, table)
+    text.translate(table)
+</pre>
+<h2 id="toc_1.2">occurrences</h2>
+<pre>
+    s = ''.join([line.rstrip() for line in open('orc.txt')])
+    OCCURANCES = {}
+    for c in s: OCCURANCES[c]=OCCURANCES.get(c, 0)+1
+</pre>
+<h2 id="toc_1.3">filter</h2>
+<pre>
+    import string
+    filter(lambda x: x in string.letters, text)
+</pre>
+<h2 id="toc_1.4">sum</h2>
+<pre>
+    vals = [2,4,6]
+    tot = sum(vals, -2.0)
+</pre>
+
+</body>
+</html>
