@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="Stylesheet" type="text/css" href="style.css">
+<title>NLP</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+
+<h1 id="toc_1">NLP</h1>
+
+<h2 id="toc_1.1">nltk notes</h2>
+<dl>
+<dt>text1.concordance('monstrous')</dt>
+<dd>to examine the context of a text</dd>
+<dt>text1.similar('monstrous')</dt>
+<dd>to find the words with similar context</dd>
+<dt>text2.common_contexts(["monstrous", 'very'])</dt>
+<dd> to find the common context of a list of words</dd>
+<dt>text4.dispersion_plot(['citizens', 'democracy', 'freedom', 'duties', 'American'])</dt>
+<dd>lexical dispersion plot</dd>
+<dt>fdist1  FreqDist(text1)</dt>
+<dd> frequency distribution</dd>
+<dt>fdist1.plot(50, cumulativeTrue)</dt>
+<dd> generate a cumulative frequency plot</dd>
+<dt>fdist1.N()</dt>
+<dd> total number of samples</dd>
+<dt>fdist1.tabulate()</dt>
+<dd> tabulate the frequency of the distribution</dd>
+<dt>bigrams('more is said than doen'.split())</dt>
+<dd> get a bigrams of a list of words</dd>
+<dt>text4.collocations()</dt>
+<dd> In corpus linguistics, collocation defines a sequence of words or terms that co-occur more often than would be expected by chance</dd>
+<dt>ConditionalFreqDist</dt>
+</dl>
+<pre>
+cfd = nltk.ConditionalFreqDist(
+            (genre, word)
+            for genre in brown.categories()
+            for word in brown.words(categories=genre))
+genres = ['news', 'religion', 'hobbies', 'science_fiction', 'romance', 'humor']
+modals = ['can', 'could', 'may', 'might', 'must', 'will']
+cfd.tabulate(conditions = genres, samples=modals)
+                 can could  may might must will
+           news   93   86   66   38   50  389
+       religion   82   59   78   12   54   71
+        hobbies  268   58  131   22   83  264
+science_fiction   16   49    4   12    8   16
+        romance   74  193   11   51   45   43
+          humor   16   30    8    8    9   13
+</pre>
+<dl>
+<dt>gender classification</dt>
+</dl>
+<pre>
+&gt;&gt;&gt; import random
+&gt;&gt;&gt; from nltk.corpus import names
+&gt;&gt;&gt; names = ([(name, 'male') for name in names.words('male.txt')]+[(name, 'female') for name in names.words('female.txt')])
+&gt;&gt;&gt; featuresets = [(gender_features(n), g) for (n, g) in names]
+&gt;&gt;&gt; train_set, test_set = featuresets[500:], featuresets[:500]
+&gt;&gt;&gt; import nltk
+&gt;&gt;&gt; classifier = nltk.NaiveBayesClassifier.train(train_set)
+&gt;&gt;&gt; classifier.classify(gender_features('Neo'))
+'male'
+&gt;&gt;&gt; classifier.classify(gender_features('Neadfasdfo'))
+'male'
+&gt;&gt;&gt; classifier.classify(gender_features('Trinity'))
+'female'
+&gt;&gt;&gt; print nltk.classify.accuracy(classifier, test_set)
+0.602
+&gt;&gt;&gt; classifier.show_most_informative_features(5)
+Most Informative Features
+             last_letter = 'a'            female : male   =     35.5 : 1.0
+             last_letter = 'k'              male : female =     34.1 : 1.0
+             last_letter = 'f'              male : female =     15.9 : 1.0
+             last_letter = 'p'              male : female =     13.5 : 1.0
+             last_letter = 'v'              male : female =     12.7 : 1.0
+&gt;&gt;&gt; from nltk.classify import apply_features
+&gt;&gt;&gt; train_set = apply_features(gender_features, name[500:])
+&gt;&gt;&gt; test_set = apply_features(gender_features, names[:500])
+</pre>
+<dl>
+<dt>document classification</dt>
+</dl>
+<pre>
+&gt;&gt;&gt; from nltk.corpus import movie_reviews
+&gt;&gt;&gt; documents = [(list(movie_reviews.words(fileid)), category)
+...              for category in movie_reviews.categories()
+...              for fileid in movie_reviews.fileids(category)]
+&gt;&gt;&gt; random.shuffle(documents)
+all_words = nltk.FreqDist(w.lower() for w in movie_reviews.words())
+word_features = all_words.keys()[:2000]
+
+def document_features(document):
+    document_words = set(document)
+    features = {}
+    for word in word_features:
+        features['contains(%s)' % word] = (word in document_words)
+    return features
+
+featuresets = [(document_features(d), c) for (d,c) in documents]
+train_set, test_set = featuresets[100:], featuresets[:100]
+classifier = nltk.NaiveBayesClassifier.train(train_set)
+
+&gt;&gt;&gt; print nltk.classify.accuracy(classifier, test_set)
+0.81
+&gt;&gt;&gt; classifier.show_most_informative_features(5)
+Most Informative Features
+   contains(outstanding) = True              pos : neg    =     11.1 : 1.0
+        contains(seagal) = True              neg : pos    =      7.7 : 1.0
+   contains(wonderfully) = True              pos : neg    =      6.8 : 1.0
+         contains(damon) = True              pos : neg    =      5.9 : 1.0
+        contains(wasted) = True              neg : pos    =      5.8 : 1.0
+</pre>
+
+</body>
+</html>
